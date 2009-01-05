@@ -115,7 +115,7 @@ class URLTimeoutAsync:
 				info[type] = info[type][:-1]
 
 		if grab.response.status == 301: # moved permenantly
-			return self.get_url(info["Location"],ref)
+			return self.get_url(info["Location"],ref,headers)
 		
 		if grab.response.status == 304: # old data!
 			raise URLOldDataError

@@ -63,14 +63,15 @@ class GetURL:
 		else:
 			raise Exception, "We never got that URL! ("+url+")"
 	
-	user_agent = "Tom's RSS parser, http://tevp.net; rss@tevp.net"
+	user_agent = None
 	
 	def get(self,url,ref=None, max_age=3600, data = {},headers={}): # 3600 seconds = 60 minutes
 		if self.debug:
 			print "Grabbing",url
 		self.__load__(url,ref)
 		hash = self.md5(url,ref)
-		headers["User-Agent"] = self.user_agent
+		if self.user_agent!=None:
+			headers["User-Agent"] = self.user_agent
 		now = time.time()
 		if self.store.has_key(hash):
 			old = self.store[hash]

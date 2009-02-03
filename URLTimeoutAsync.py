@@ -90,11 +90,14 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 
 
 class URLTimeoutAsync:
+	def __init__(self,debug=False):
+		self.debug = debug
+
 	def get_url(self,url,ref,headers,debug=False,data=None):
 		origurl = url
 		if data!=None:
 			data = urlencode(data)
-		grab = asyncgrab(url,ref,headers,data=data)
+		grab = asyncgrab(url,ref,headers,data=data,debug=self.debug)
 		if debug:
 			grab.set_debuglevel(1)
 		try:

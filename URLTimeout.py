@@ -22,7 +22,7 @@ class URLTimeout:
 				print "PyCurl importing error",e
 			try:
 				from URLTimeoutAsync import URLTimeoutAsync
-				self.ut = URLTimeoutAsync()
+				self.ut = URLTimeoutAsync(debug=debug)
 			except ImportError,e:
 				print "Async importing error",e
 				raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"

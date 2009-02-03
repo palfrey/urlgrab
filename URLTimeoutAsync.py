@@ -29,8 +29,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			self.handle_response()
 
 		bits = urlparse.urlsplit(url)
-		#self.debug = debug
-		self.debug = True
+		self.debug = debug
 		if self.debug:
 			print "bits",bits
 		if bits[1].find(':')==-1:
@@ -44,6 +43,8 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			url += "?"+bits[3]
 		if len(url)==0:
 			url="/"
+		if self.debug:
+			print "url",url
 		self._url = url
 		self._referer = referer
 		self._closed = False

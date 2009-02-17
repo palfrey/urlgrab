@@ -93,12 +93,12 @@ class URLTimeoutAsync:
 	def __init__(self,debug=False):
 		self.debug = debug
 
-	def get_url(self,url,ref,headers,debug=False,data=None):
+	def get_url(self,url,ref,headers,data=None):
 		origurl = url
 		if data!=None:
 			data = urlencode(data)
 		grab = asyncgrab(url,ref,headers,data=data,debug=self.debug)
-		if debug:
+		if self.debug:
 			grab.set_debuglevel(1)
 		try:
 			grab.connect()

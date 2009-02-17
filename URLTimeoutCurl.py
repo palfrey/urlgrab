@@ -31,7 +31,7 @@ class URLTimeoutCurl:
 		self.user = user
 		self.password = password
 
-	def get_url(self,url,ref=None,headers={},debug=False,data={},ignore_move=False):
+	def get_url(self,url,ref=None,headers={},debug=False,data=None,ignore_move=False):
 		resp = handleurl(url)
 		if resp!=None:
 			return URLObject(url,None,resp.body,resp.msg.headers)
@@ -48,7 +48,7 @@ class URLTimeoutCurl:
 		c.setopt(c.HEADERFUNCTION, self.head_callback)
 		c.setopt(c.HTTPHEADER,[x+": "+headers[x] for x in headers.keys()])
 
-		if data!={}:
+		if data!=None:
 			enc = urlencode(data)
 			#c.setopt(c.POST,1)
 			c.setopt(c.POSTFIELDS,enc)

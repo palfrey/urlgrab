@@ -65,7 +65,7 @@ class GetURL:
 	
 	user_agent = None
 	
-	def get(self,url,ref=None, max_age=3600, data = {},headers={}): # 3600 seconds = 60 minutes
+	def get(self,url,ref=None, max_age=3600, data = None,headers={}): # 3600 seconds = 60 minutes
 		if self.debug:
 			print "Grabbing",url
 		self.__load__(url,ref)

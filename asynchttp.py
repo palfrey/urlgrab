@@ -251,7 +251,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         because it conflicts with asynchat
         """
         if self.debuglevel > 0:
-            print "send_entity %s"
+            print "send_entity %s"%str
             
         self._requestfp.write(str)
         

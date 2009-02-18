@@ -36,3 +36,7 @@ class URLTimeout:
 URLTimeout.URLTimeoutError = URLTimeoutError
 
 URLTimeout.URLOldDataError = URLOldDataError
+
+if __name__ == "__main__":
+	obj = URLTimeout(debug=True).get_url("http://www.google.com")
+	print obj

@@ -14,6 +14,7 @@ from urllib import urlencode
 
 from alarms import AsyncAlarmMixin
 from URLTimeoutCommon import *
+from local_dict import apply_vars
 
 debug = True
 
@@ -67,9 +68,10 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			self.putrequest("POST", self._url)
 		if self._referer!=None:
 			self.putheader("Referer",self._referer)
-		for k in self._headers.keys():
-			self.putheader(k,self._headers[k])
-		if self.data!=None:
+		if self._headers:
+			for k in self._headers.keys():
+				self.putheader(k,self._headers[k])
+		if self.data:
 			self.putheader('Content-Length', str(len(self.data)))
 			
 		self.endheaders()
@@ -88,13 +90,18 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 		else:
 			print "we already killed this (alarm)"		
 
-
-class URLTimeoutAsync:
+class URLTimeoutAsync(URLGetter):
 	def __init__(self,debug=False):
-		self.debug = debug
+		URLGetter.__init__(self,debug)
 
-	def get_url(self,url,ref,headers,data=None):
-		origurl = url
+	def get_url(self,url,**kwargs):
+		kwargs = apply_vars(kwargs, self.get_url_args)
+		exec('pass') # apply locals. Copy+paste magic...
+		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
+
+		if proxy!=None:
+			raise Exception, "URLTimeoutAsync can't handle proxies right now!"
+
 		if data!=None:
 			data = urlencode(data)
 		grab = asyncgrab(url,ref,headers,data=data,debug=self.debug)
@@ -105,7 +112,7 @@ class URLTimeoutAsync:
 		except socket.error,err:
 			raise URLTimeoutError,(err[1],url)
 
-		grab.loop(timeout=15)
+		grab.loop(timeout=self.getTimeout())
 
 		if not hasattr(grab, "response") or grab.response.body==None:
 			print grab.__dict__
@@ -113,13 +120,14 @@ class URLTimeoutAsync:
 		
 		info = {}
 		for hdr in grab.response.msg.headers:
-			(type,data) = hdr.split(':',1)
-			info[type] = data[1:]
-			while (info[type][-1]=='\r' or info[type][-1]=='\n'):
+			(type,hdr_data) = hdr.split(':',1)
+			info[type] = hdr_data[1:]
+			while len(info[type])>0 and (info[type][-1]=='\r' or info[type][-1]=='\n'):
 				info[type] = info[type][:-1]
 
-		if grab.response.status == 301: # moved permenantly
-			return self.get_url(info["Location"],ref,headers)
+		ret = self.check_move(grab.response.status, locals())
+		if ret!=None:
+			return ret
 		
 		if grab.response.status == 304: # old data!
 			raise URLOldDataError
@@ -127,7 +135,7 @@ class URLTimeoutAsync:
 		if grab.response.status !=200:
 			raise URLTimeoutError,(str(grab.response.status)+" "+grab.response.reason,url)
 		
-		return URLObject(origurl,ref,grab.response.body,info)
+		return URLObject(url,ref,grab.response.body,info)
 
 #if __name__ == '__main__':
 	#print urllib2.urlopen("http://eris")

@@ -10,12 +10,12 @@
 import pycurl,re
 from URLTimeoutCommon import *
 from urllib import urlencode
-from urlparse import urljoin
 import __builtin__
 from types import ListType
 
-class URLTimeoutCurl:
-	def __init__(self):
+class URLTimeoutCurl(URLGetter):
+	def __init__(self, debug = False):
+		URLGetter.__init__(self, debug)
 		self.user = ""
 		self.write_callback = None
 
@@ -31,7 +31,7 @@ class URLTimeoutCurl:
 		self.user = user
 		self.password = password
 
-	def get_url(self,url,ref=None,headers={},debug=False,data=None,ignore_move=False):
+	def get_url(self,url,ref=None,headers={},data=None,ignore_move=False):
 		resp = handleurl(url)
 		if resp!=None:
 			return URLObject(url,None,resp.body,resp.msg.headers)
@@ -54,9 +54,8 @@ class URLTimeoutCurl:
 			c.setopt(c.POSTFIELDS,enc)
 			print "enc",enc
 			
-		#c.setopt(c.USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040320 Firefox/0.8")
 		c.setopt(c.LOW_SPEED_LIMIT, 15) # 15 bytes/sec = dead. Random value.
-		c.setopt(c.LOW_SPEED_TIME, 30) # i.e. dead (< 15 bytes/sec) for 15 seconds
+		c.setopt(c.LOW_SPEED_TIME, self.getTimeout()) # i.e. dead (< 15 bytes/sec) 
 		if ref!=None:
 			c.setopt(c.REFERER, ref)
 
@@ -107,25 +106,14 @@ class URLTimeoutCurl:
 				else:
 					info[type] = temp
 
-			if not ignore_move and (status[0] in [301,302,303]): # moved
-				try:
-					if info.has_key("location"):
-						newuri = info["location"]
-					elif info.has_key("Location"):
-						newuri = info["Location"]
-					else:
-						print "info",info
-						raise URLTimeoutError,("301/302, but no location!",url)
-					return self.get_url(urljoin(url,newuri),ref,headers)
-						
-				except:
-					print "info",info
-					raise
+			ret = self.check_move(status[0], locals())
+			if ret!=None:
+				return ret
 			
 			if status[0] == 304:
 				raise URLOldDataError
 			
-			if status[0] !=200 and (not ignore_move or status[0] not in [301,302]):
+			if status[0] !=200:
 				raise URLTimeoutError,(str(status[0])+" "+status[1],url)
 		
 			return URLObject(origurl,None,self.contents,info)

@@ -9,6 +9,8 @@
 debug = False
 
 from sys import version_info
+from urlparse import urljoin
+from local_dict import apply_vars
 
 class URLTimeoutError(Exception):
 	def __init__(self,string,url):
@@ -101,6 +103,43 @@ class URLObject:
 	
 	def getmime(self):
 		return self.headers.getmime()
+
+class URLGetter:
+	def __init__(self,debug = False):
+		self.timeout = 40
+		self.debug = debug
+		
+	def setTimeout(self, val):
+		self.timeout = val
+	
+	def getTimeout(self):
+		return self.timeout
+
+	def get_url(self,*args):
+		raise Exception, "Warning: subclass has not defined get_url"
+
+	get_url_args = ('headers','proxy','ref','ignore_move')
+
+	def check_move(self, status, kwargs):
+		apply_vars(kwargs)
+		exec('pass') # apply locals. Copy+paste magic...
+		if not ignore_move and (status in (301,302,303)): # moved
+			try:
+				if info.has_key("location"):
+					newuri = info["location"]
+				elif info.has_key("Location"):
+					newuri = info["Location"]
+				else:
+					print "info",info
+					raise URLTimeoutError,("301/302/303, but no location!",url)
+				del kwargs['url']
+				del kwargs['self']
+				return self.get_url(urljoin(url,newuri),**kwargs)
+					
+			except:
+				print "info",info
+				raise
+		return None
 		
 from Enum import enum
 from os import popen

@@ -16,22 +16,20 @@ class URLTimeout:
 		self.debug = debug
 		try:
 			from URLTimeoutCurl import URLTimeoutCurl
-			self.ut = URLTimeoutCurl()
+			self.__ut = URLTimeoutCurl(debug=debug)
 		except ImportError,e:
 			if debug:
 				print "PyCurl importing error",e
 			try:
 				from URLTimeoutAsync import URLTimeoutAsync
-				self.ut = URLTimeoutAsync(debug=debug)
+				self.__ut = URLTimeoutAsync(debug=debug)
 			except ImportError,e:
 				print "Async importing error",e
 				raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"
-				return
 		
-		self.get_url = self.ut.get_url
-
-		if "auth" in dir(self.ut):
-			self.auth = self.ut.auth
+		for method in dir(self.__ut):
+			if method[0]!="_":
+				setattr(self,method,getattr(self.__ut,method))
 
 URLTimeout.URLTimeoutError = URLTimeoutError
 

@@ -15,6 +15,7 @@ class GetURL:
 		self.store = {}
 		self.debug = debug
 		self.grabber = URLTimeout(debug)
+		self.default_timeout = self.grabber.getTimeout()
 		if not os.path.exists(cche):
 			os.mkdir(cche)
 
@@ -65,7 +66,9 @@ class GetURL:
 	
 	user_agent = None
 	
-	def get(self,url,ref=None, max_age=3600, data = None,headers={}): # 3600 seconds = 60 minutes
+	def get(self,url,ref=None, max_age=3600, data = None,headers={}, timeout=None): # 3600 seconds = 60 minutes
+		if timeout == None:
+			timeout = self.default_timeout
 		if self.debug:
 			print "Grabbing",url
 		self.__load__(url,ref)
@@ -97,6 +100,9 @@ class GetURL:
 					raise URLTimeout.URLTimeoutError, (str(e),url)
 		else:
 			old = None
+	
+		self.grabber.setTimeout(timeout)
+
 		try:
 			new_old = self.grabber.get_url(url,ref,headers,data=data)
 		except URLTimeout.URLOldDataError:

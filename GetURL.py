@@ -104,7 +104,7 @@ class GetURL:
 		self.grabber.setTimeout(timeout)
 
 		try:
-			new_old = self.grabber.get_url(url,ref,headers,data=data)
+			new_old = self.grabber.get_url(url,ref=ref,headers=headers,data=data)
 		except URLTimeout.URLOldDataError:
 			old.used = now
 			self.dump(old.url,old.ref)

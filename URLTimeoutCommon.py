@@ -81,6 +81,7 @@ class URLObject:
 		self.data = data
 		self.ref = ref
 		self.headers = URLHeaders(headers)
+		self.location = 0
 		
 		if data!=None and headers!={} and self.getmime()[0] !="image":
 			for x in codec.keys():
@@ -95,8 +96,20 @@ class URLObject:
 	def info(self):
 		return self.headers
 	
-	def read(self):
+	def readall(self):
 		return self.data
+	
+	def read(self, length=-1):
+		if length < 0:
+			ret = self.data[self.location:len(self.data)]
+			self.location = len(self.data)
+		elif self.location<len(self.data):
+			ret = self.data[self.location:self.location+length]
+			self.location += length
+			if self.location > len(self.data):
+				self.location = len(self.data)
+		else:
+			raise EOFError
 	
 	def close(self):
 		pass

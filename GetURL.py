@@ -29,7 +29,8 @@ class GetURL:
 				if self.debug:
 					print "loading",os.path.join(self.cache,f)
 				old = load(file(os.path.join(self.cache,f)))
-				if len(old.read())==0:
+				old.seek(0)
+				if len(old.readall())==0:
 					raise EOFError()
 				self.store[self.md5(old.url,old.ref)] = old
 				if self.debug:

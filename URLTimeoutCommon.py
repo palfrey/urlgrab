@@ -11,6 +11,7 @@ debug = False
 from sys import version_info
 from urlparse import urljoin
 from local_dict import apply_vars
+from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 class URLTimeoutError(Exception):
 	def __init__(self,string,url):
@@ -103,14 +104,32 @@ class URLObject:
 		if length < 0:
 			ret = self.data[self.location:len(self.data)]
 			self.location = len(self.data)
+			return ret
 		elif self.location<len(self.data):
 			ret = self.data[self.location:self.location+length]
 			self.location += length
 			if self.location > len(self.data):
 				self.location = len(self.data)
+			return ret
 		else:
-			raise EOFError
+			return ""
 	
+	def tell(self):
+		return self.location
+
+	def seek(self, offset, whence = SEEK_SET):
+		if whence == SEEK_SET:
+			self.location = offset
+		elif whence == SEEK_CUR:
+			self.location += offset
+		elif whence == SEEK_END:
+			self.location = len(self.data)-offset
+
+		if self.location > len(self.data):
+			self.location = len(self.data)
+		elif self.location < 0:
+			self.location = 0
+
 	def close(self):
 		pass
 	

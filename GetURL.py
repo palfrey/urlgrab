@@ -133,8 +133,6 @@ class GetURL:
 			print "Grabbed",old.url,old.ref
 		return old
 
-#GetURL()
-
 if __name__ == "__main__":
 	c = GetURL(debug=True)
 	t = time.time()

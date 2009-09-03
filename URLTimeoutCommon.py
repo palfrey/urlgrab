@@ -185,7 +185,11 @@ def getkind(url):
 	newurl ="".join(bits[1:])
 	while newurl[0]=="/":
 		newurl = newurl[1:]
-	return (kind(bits[0]),newurl)
+	try:
+		return (kind(bits[0]),newurl)
+	except KeyError:
+		print "bits",bits
+		raise
 
 class URLPython:
 	def __init__(self,url,debug=False):

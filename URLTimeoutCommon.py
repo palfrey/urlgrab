@@ -15,7 +15,7 @@ from os import SEEK_SET, SEEK_CUR, SEEK_END
 
 class URLTimeoutError(Exception):
 	def __init__(self,string,url):
-		Exception.__init__(self,string)
+		Exception.__init__(self,"%s - %s"%(string,url))
 		self.url = url
 
 class URLOldDataError(Exception):
@@ -174,9 +174,12 @@ class URLGetter:
 		return None
 		
 from Enum import enum
-from os import popen
 from os.path import dirname,basename
 import urlparse
+try:
+	from os import popen
+except ImportError: # occurs on Google AppEngine
+	popen = None
 
 kind = enum('http','file','python')
 
@@ -198,6 +201,8 @@ class URLPython:
 		self._url = url
 		cmd = "cd %s;python %s"%(dirname(url),basename(url))
 		print "cmd",cmd
+		if popen == None:
+			raise Exception, "Don't have popen!"
 		data = popen(cmd,"r").readlines()
 		self.msg = URLHeaders({})
 		self.status = 200

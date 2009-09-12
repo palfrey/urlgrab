@@ -14,11 +14,12 @@ debug = False
 class URLTimeout:
 	def __init__(self,debug=False):
 		self.debug = debug
-		modules = ("URLTimeoutCurl", "URLTimeoutAsync")
+		modules = ("URLTimeoutCurl", "URLTimeoutAsync", "URLTimeoutAppEngine")
 		for m in modules:
 			try:
 				mod = __import__(m, globals(), locals(), [m], -1)
-				self.__ut = mod(debug=debug)
+				self.__ut = getattr(mod,m)(debug=debug)
+				break
 			except ImportError,e:
 				if debug:
 					print "%s importing error"%m,e

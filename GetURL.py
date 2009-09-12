@@ -9,6 +9,11 @@ from URLTimeout import URLTimeout,URLObject
 from stat import ST_MTIME
 import copy
 
+try:
+	from google.appengine.api import memcache
+except ImportError:
+	memcache = None
+
 class GetURL:
 	def __init__(self,cche="cache", debug=False):
 		self.cache = cche
@@ -16,12 +21,17 @@ class GetURL:
 		self.debug = debug
 		self.grabber = URLTimeout(debug)
 		self.default_timeout = self.grabber.getTimeout()
-		if not os.path.exists(cche):
+		if not memcache and not os.path.exists(cche):
 			os.mkdir(cche)
 
 	def __load__(self,url,ref):
 		hash = self.md5(url,ref)
 		if self.store.has_key(hash):
+			return
+		if memcache:
+			get = memcache.get(hash)
+			if get != None:
+				self.store[hash] = get
 			return
 		f = hash+".cache"
 		if f in os.listdir(self.cache):
@@ -42,7 +52,6 @@ class GetURL:
 					print "discarded",f,sys.exc_info()
 				os.unlink(os.path.join(self.cache,f))
 	
-	
 	def auth(self,user,password):
 		self.grabber.auth(user,password)
 
@@ -59,9 +68,12 @@ class GetURL:
 		if self.store.has_key(hash):
 			if self.debug:
 				print "dumping",url,ref,hash
-			f = file(os.path.join(self.cache,hash+".cache"),'wb')
-			dump(self.store[hash],f)
-			f.close()
+			if memcache:
+				memcache.set(hash, self.store[hash])
+			else:
+				f = file(os.path.join(self.cache,hash+".cache"),'wb')
+				dump(self.store[hash],f)
+				f.close()
 		else:
 			raise Exception, "We never got that URL! ("+url+")"
 	

@@ -14,18 +14,16 @@ debug = False
 class URLTimeout:
 	def __init__(self,debug=False):
 		self.debug = debug
-		try:
-			from URLTimeoutCurl import URLTimeoutCurl
-			self.__ut = URLTimeoutCurl(debug=debug)
-		except ImportError,e:
-			if debug:
-				print "PyCurl importing error",e
+		modules = ("URLTimeoutCurl", "URLTimeoutAsync")
+		for m in modules:
 			try:
-				from URLTimeoutAsync import URLTimeoutAsync
-				self.__ut = URLTimeoutAsync(debug=debug)
+				mod = __import__(m, globals(), locals(), [m], -1)
+				self.__ut = mod(debug=debug)
 			except ImportError,e:
-				print "Async importing error",e
-				raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"
+				if debug:
+					print "%s importing error"%m,e
+		else:
+			raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"
 		
 		for method in dir(self.__ut):
 			if method[0]!="_":

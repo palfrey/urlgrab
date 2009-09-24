@@ -103,8 +103,10 @@ class URLTimeoutAsync(URLGetter):
 			raise Exception, "URLTimeoutAsync can't handle proxies right now!"
 
 		if data!=None:
-			data = urlencode(data)
-		grab = asyncgrab(url,ref,headers,data=data,debug=self.debug)
+			encode_data = urlencode(data)
+		else:
+			encode_data = None
+		grab = asyncgrab(url,ref,headers,data=encode_data,debug=self.debug)
 		if self.debug:
 			grab.set_debuglevel(1)
 		try:

@@ -12,6 +12,8 @@ from sys import version_info
 from urlparse import urljoin
 from local_dict import apply_vars
 from os import SEEK_SET, SEEK_CUR, SEEK_END
+from types import ListType
+import __builtin__
 
 class URLTimeoutError(Exception):
 	def __init__(self,string,url):
@@ -172,7 +174,31 @@ class URLGetter:
 				print "info",info
 				raise
 		return None
-		
+
+	def gen_headers(self, hdrs):
+		info = {}
+		for hdr in hdrs:
+			if hdr == "":
+				continue
+			try:
+				(type,data) = hdr.split(':',1)
+			except:
+				print "header was %s"%hdr
+				raise
+			temp = data[1:]
+			while (len(temp)>0 and (temp[-1]=='\r' or temp[-1]=='\n')):
+				temp =temp[:-1]
+			if len(temp)==0:
+				continue
+			if info.has_key(type):
+				if __builtin__.type(info[type])!=ListType:
+					old = info[type]
+					info[type] =[old]
+				info[type].append(temp)
+			else:
+				info[type] = temp
+		return info
+
 from Enum import enum
 from os.path import dirname,basename
 import urlparse

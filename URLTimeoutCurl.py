@@ -10,8 +10,6 @@
 import pycurl,re
 from URLTimeoutCommon import *
 from urllib import urlencode
-import __builtin__
-from types import ListType
 
 class URLTimeoutCurl(URLGetter):
 	def __init__(self, debug = False):
@@ -83,29 +81,9 @@ class URLTimeoutCurl(URLGetter):
 			status = [0,0]
 			status[0] = int(ret[0])
 			status[1] = ret[1]
-			hdrs = hdrs[1:]
 
-			for hdr in hdrs:
-				if hdr == "":
-					continue
-				try:
-					(type,data) = hdr.split(':',1)
-				except:
-					print "header was %s"%hdr
-					raise
-				temp = data[1:]
-				while (len(temp)>0 and (temp[-1]=='\r' or temp[-1]=='\n')):
-					temp =temp[:-1]
-				if len(temp)==0:
-					continue
-				if info.has_key(type):
-					if __builtin__.type(info[type])!=ListType:
-						old = info[type]
-						info[type] =[old]
-					info[type].append(temp)
-				else:
-					info[type] = temp
-
+			info = self.gen_headers(hdrs[1:])
+			
 			ret = self.check_move(status[0], locals())
 			if ret!=None:
 				return ret

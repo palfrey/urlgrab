@@ -120,13 +120,7 @@ class URLTimeoutAsync(URLGetter):
 			print grab.__dict__
 			raise URLTimeoutError, ("Timed out!",url)
 		
-		info = {}
-		for hdr in grab.response.msg.headers:
-			(type,hdr_data) = hdr.split(':',1)
-			info[type] = hdr_data[1:]
-			while len(info[type])>0 and (info[type][-1]=='\r' or info[type][-1]=='\n'):
-				info[type] = info[type][:-1]
-
+		info = self.gen_headers(grab.response.msg.headers)
 		ret = self.check_move(grab.response.status, locals())
 		if ret!=None:
 			return ret

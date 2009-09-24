@@ -137,7 +137,7 @@ class GetURL:
 			self.store[hash] = other
 			other.checked = other.used = now
 			
-		if len(old.headers.headers)>0 and old.getmime()[0] not in ["image","application"]:
+		if len(old.headers.headers)>0:
 			self.dump(old.url,old.ref)
 			if old.url!=url:
 				self.dump(url,ref)

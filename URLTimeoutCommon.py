@@ -60,7 +60,11 @@ class URLHeaders:
 	def cookies(self):
 		if not self.headers.has_key("Set-Cookie"):
 			raise Exception, "No Set-Cookie header"
-		return dict([x.split(";")[0].split("=") for x in self.headers["Set-Cookie"]])
+		if type(self.headers["Set-Cookie"]) == ListType:
+			hdrs = self.headers["Set-Cookie"]
+		else:
+			hdrs = [self.headers["Set-Cookie"]]
+		return dict([x.split(";")[0].split("=",1) for x in hdrs])
 	
 	def getheader(self,name):
 		return self.get(name,None)

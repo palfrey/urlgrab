@@ -129,7 +129,7 @@ class URLTimeoutAsync(URLGetter):
 			raise URLOldDataError
 		
 		if grab.response.status !=200:
-			raise URLTimeoutError,(str(grab.response.status)+" "+grab.response.reason,url)
+			raise URLTimeoutError,(str(grab.response.status)+" "+grab.response.reason,url,grab.response.status)
 		
 		return URLObject(url,ref,grab.response.body,info)
 

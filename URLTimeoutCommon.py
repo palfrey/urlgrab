@@ -16,7 +16,7 @@ from types import ListType
 import __builtin__
 
 class URLTimeoutError(Exception):
-	def __init__(self,string,url, code=None):
+	def __init__(self,string,url, code = -1):
 		Exception.__init__(self,"%s - %s"%(string,url))
 		self.url = url
 		self.code = code
@@ -170,7 +170,7 @@ class URLGetter:
 					newuri = info["Location"]
 				else:
 					print "info",info
-					raise URLTimeoutError,("301/302/303, but no location!",url)
+					raise URLTimeoutError,("301/302/303, but no location!",url,status)
 				del kwargs['url']
 				del kwargs['self']
 				return self.get_url(urljoin(url,newuri),**kwargs)

@@ -6,7 +6,7 @@ the scalability of asynchat.
 
 I have pasted as much code as I could from httplib (Python 2.0) because it
 is a well written and widely used interface. This may be a mistake,
-because the behavior of AsyncHTTPConnection os quite different from that of
+because the behavior of AsyncHTTPConnection is quite different from that of
 httplib.HTTPConnection
 
 contact:
@@ -90,7 +90,7 @@ class AsyncHTTPResponse:
         """
         This constructor builds everything in the response
         object except the body.  It expects a file object
-        containing the header text returnded by the server
+        containing the header text returned by the server
         """
         self.debuglevel = debuglevel
 
@@ -244,10 +244,10 @@ class AsyncHTTPConnection(asynchat.async_chat):
     def send_entity(self, str):
         """
         Send `str' to the server.
-        Actually, we  just append str to the block of text to  be sent
+        Actually, we just append str to the block of text to  be sent
         to the server when getresponse is called.
 
-        Note:  the name was changed from httplib's 'HTTPConnection.send()'
+        Note: the name was changed from httplib's 'HTTPConnection.send()'
         because it conflicts with asynchat
         """
         if self.debuglevel > 0:
@@ -372,7 +372,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
     def getresponse(self):
         """
         Get the response from the server.
-        This  actually starts the process of sending the request
+        This actually starts the process of sending the request
         to the server.  The response will be delivered in handle_response
         """
         self.__set_state(_STATE_ACCEPTING_HEADERS)
@@ -507,7 +507,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 self.__state,
                 data,
                 self.get_terminator(),
-                self.ac_in_buffer 
+                self.ac_in_buffer
                 ), name=str(self))
         
         self._responsefp.write(data)
@@ -524,8 +524,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
     def _header_data(self):
         """
-        overload asynchat.found_terminator for
-        _STATE_ACCEPTING_HEADERS
+        overload asynchat.found_terminator for _STATE_ACCEPTING_HEADERS
         We assume that we have hit the blank line terminator after the
         HTTP response headers.
         """
@@ -588,7 +587,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
     def _get_chunk_size(self):
         """
-        Assume that chunkbuffer contains some text, begining with
+        Assume that chunkbuffer contains some text, beginning with
         a line containing the chunk size in hex.
         """
         # 2001-03-26 djf -- kludge alert! We shouldn't have to lstrip
@@ -676,7 +675,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 self._chunkfp = None
 
                 # if there's still something in the buffer,
-                # assume it's  the chunk residue (probably just
+                # assume it's the chunk residue (probably just
                 # '\r\n'
                 if self._chunkbuffer:
                     self._chunkbuffer = "" # discard the residue
@@ -690,7 +689,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                     return
 
                 # we've handled the whole chunk, but the server could
-                # send entity headers. It should  at least send
+                # send entity headers. It should at least send
                 # a final '\r\n'
                 self.set_terminator("\r\n\r\n")
                 self._responsefp = cStringIO.StringIO()
@@ -701,7 +700,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
             # the specified number of bytes in the buffer, we need
             # to  read some more
             chunk_plus_crlf_size = self._chunksize+2
-            bufsize = len(self._chunkbuffer) 
+            bufsize = len(self._chunkbuffer)
             if bufsize < chunk_plus_crlf_size:
                 self.set_terminator(chunk_plus_crlf_size - bufsize)
                 self._responsefp = cStringIO.StringIO()
@@ -739,7 +738,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
     def handle_response(self):
         """
-        This is an abstract function, the  user MUST overload it
+        This is an abstract function, the user MUST overload it
         """
         raise HandleResponse(
             "Call to AsyncHTTPConnection.handle_response", name=str(self)

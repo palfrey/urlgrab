@@ -655,7 +655,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 chunkbody = self._chunkbuffer
                 self._chunkbuffer = ''
 
-            self._chunkfp.write(chunkbody)
+            self._chunkfp.write(chunkbody[:self._chunksize])
 
             if not self._chunkbuffer:
                 break

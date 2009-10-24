@@ -16,9 +16,10 @@ from types import ListType
 import __builtin__
 
 class URLTimeoutError(Exception):
-	def __init__(self,string,url):
+	def __init__(self,string,url, code=None):
 		Exception.__init__(self,"%s - %s"%(string,url))
 		self.url = url
+		self.code = code
 
 class URLOldDataError(Exception):
 	pass

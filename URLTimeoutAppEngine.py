@@ -42,7 +42,7 @@ class URLTimeoutAppEngine(URLGetter):
 			raise URLOldDataError
 		
 		if grab.status_code !=200:
-			raise URLTimeoutError,(str(grab.status_code),grab.content,url, grab.status_code)
+			raise URLTimeoutError,(str(grab.status_code)+" "+grab.content,url, grab.status_code)
 		
 		return URLObject(url,ref,grab.content,grab.headers)
 

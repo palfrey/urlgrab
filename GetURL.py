@@ -95,6 +95,7 @@ class GetURL:
 				print "time diff",time.time()-old.checked
 			if len(old.headers.headers)>0: # non-local file
 				if max_age==-1 or now-old.checked < max_age:
+					old.seek(0)
 					old.used = now
 					self.dump(old.url,old.ref)
 					return old
@@ -120,6 +121,7 @@ class GetURL:
 			new_old = self.grabber.get_url(url,ref=ref,headers=headers,data=data)
 		except URLTimeout.URLOldDataError:
 			old.used = now
+			old.seek(0)
 			self.dump(old.url,old.ref)
 			return old
 
@@ -127,6 +129,7 @@ class GetURL:
 		hash = self.md5(old.url,old.ref)
 		self.store[hash] = old
 		old.checked = old.used = now
+		old.seek(0)
 		if old.url!=url:
 			if self.debug:
 				print "url != old.url, so storing both"

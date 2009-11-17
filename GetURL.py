@@ -21,7 +21,7 @@ class GetURL:
 		self.debug = debug
 		self.grabber = URLTimeout(debug)
 		self.default_timeout = self.grabber.getTimeout()
-		if not memcache and not os.path.exists(cche):
+		if memcache == None and not os.path.exists(cche):
 			os.mkdir(cche)
 
 	def __load__(self,url,ref):
@@ -68,7 +68,7 @@ class GetURL:
 		if self.store.has_key(hash):
 			if self.debug:
 				print "dumping",url,ref,hash
-			if memcache:
+			if memcache!=None:
 				memcache.set(hash, self.store[hash])
 			else:
 				f = file(os.path.join(self.cache,hash+".cache"),'wb')

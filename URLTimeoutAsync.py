@@ -20,7 +20,6 @@ debug = True
 
 class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 	def __init__(self, url,referer=None,headers={},debug=False, data = None):
-
 		self.data = data
 		origurl = url
 
@@ -82,7 +81,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 	def connect(self):
 		asynchttp.AsyncHTTPConnection.connect(self)
 	
-	def handle_alarm(self, data):	
+	def handle_alarm(self, data):
 		if not self._closed:
 			self.close()
 			self._closed = True
@@ -132,8 +131,3 @@ class URLTimeoutAsync(URLGetter):
 			raise URLTimeoutError,(str(grab.response.status)+" "+grab.response.reason,url,grab.response.status)
 		
 		return URLObject(url,ref,grab.response.body,info)
-
-#if __name__ == '__main__':
-	#print urllib2.urlopen("http://eris")
-
-#	print ret.info().getmime()

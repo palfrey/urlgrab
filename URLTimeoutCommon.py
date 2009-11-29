@@ -204,26 +204,13 @@ class URLGetter:
 				info[type] = temp
 		return info
 
-from Enum import enum
+from Enum import Enum
 from os.path import dirname,basename
 import urlparse
 try:
 	from os import popen
 except ImportError: # occurs on Google AppEngine
 	popen = None
-
-kind = enum('http','file','python')
-
-def getkind(url):
-	bits = urlparse.urlsplit(url)
-	newurl ="".join(bits[1:])
-	while newurl[0]=="/":
-		newurl = newurl[1:]
-	try:
-		return (kind(bits[0]),newurl)
-	except KeyError:
-		print "bits",bits
-		raise
 
 class URLPython:
 	def __init__(self,url,debug=False):
@@ -251,13 +238,27 @@ class URLFile:
 		self.msg = URLHeaders({})
 		self.status = 200
 
+class Kind(Enum):
+	http=1
+	file=2
+	python=3
+
 def handleurl(url):
-	(mykind,rest) = getkind(url)
+	bits = urlparse.urlsplit(url)
+	rest ="".join(bits[1:])
+	while rest[0]=="/":
+		rest = rest[1:]
+	try:
+		mykind = Kind.valid(bits[0])
+	except ValueError:
+		print "bits",bits
+		raise
+
 	#print "kind",url,mykind,rest
-	if mykind == kind.file:
+	if mykind == Kind.file:
 		return URLFile(rest)
-	elif mykind == kind.python:
+	elif mykind == Kind.python:
 		return URLPython(rest)
-	elif mykind == kind.http:
+	elif mykind == Kind.http:
 		return None
 	

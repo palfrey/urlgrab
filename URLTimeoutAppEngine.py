@@ -27,7 +27,7 @@ class URLTimeoutAppEngine(URLGetter):
 		if ref!=None:
 			headers["Referer"] = ref
 		try:
-			grab = fetch(url,payload=data,headers=headers,deadline=10)
+			grab = fetch(url,payload=data,headers=headers,deadline=self.getTimeout())
 		except DownloadError,e:
 			raise URLTimeoutError,(e.message,url)
 

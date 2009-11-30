@@ -19,7 +19,7 @@ from local_dict import apply_vars
 debug = True
 
 class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
-	def __init__(self, url,referer=None,headers={},debug=False, data = None):
+	def __init__(self, uts, url,referer=None,headers={},debug=False, data = None):
 		self.data = data
 		origurl = url
 
@@ -37,7 +37,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 		else:
 			asynchttp.AsyncHTTPConnection.__init__(self, bits[1][:bits[1].find(':')], int(bits[1][bits[1].find(':'):]))
 		AsyncAlarmMixin.__init__(self)
-		self.set_relative_alarm(12)
+		self.set_relative_alarm(uts.getTimeout())
 		url = bits[2]
 		if len(bits[3])>0:
 			url += "?"+bits[3]
@@ -102,7 +102,7 @@ class URLTimeoutAsync(URLGetter):
 			encode_data = urlencode(data)
 		else:
 			encode_data = None
-		grab = asyncgrab(url,ref,headers,data=encode_data,debug=self.debug)
+		grab = asyncgrab(self,url,ref,headers,data=encode_data,debug=self.debug)
 		if self.debug:
 			grab.set_debuglevel(1)
 		try:

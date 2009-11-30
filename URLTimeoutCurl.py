@@ -12,14 +12,9 @@ from URLTimeoutCommon import *
 from urllib import urlencode
 
 class URLTimeoutCurl(URLGetter):
-	def __init__(self, debug = False):
-		URLGetter.__init__(self, debug)
-		self.user = ""
-		self.write_callback = None
-
 	def body_callback(self, buf):
 		self.contents += buf
-		if self.write_callback!=None:
+		if hasattr(self, "write_callback"):
 			self.write_callback(len(self.contents))
 	
 	def head_callback(self, buf):
@@ -38,7 +33,7 @@ class URLTimeoutCurl(URLGetter):
 		self.header = ""
 		origurl = url
 		c = pycurl.Curl()
-		if self.user!="":
+		if hasattr(self, "user"):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))
 		c.setopt(c.URL, str(url))

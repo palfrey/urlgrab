@@ -14,9 +14,6 @@ from local_dict import apply_vars
 from google.appengine.api.urlfetch import fetch, DownloadError
 
 class URLTimeoutAppEngine(URLGetter):
-	def __init__(self,debug=False):
-		URLGetter.__init__(self,debug)
-
 	def get_url(self,url,**kwargs):
 		kwargs = apply_vars(kwargs, self.get_url_args)
 		exec('pass') # apply locals. Copy+paste magic...

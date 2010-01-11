@@ -57,7 +57,7 @@ class GetURL:
 
 	def md5(self,url,ref):
 		m = md5.new()
-		m.update(url)
+		m.update(url.encode("ascii","ignore"))
 		m.update(str(ref))
 		return m.hexdigest()
 		

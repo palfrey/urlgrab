@@ -1,15 +1,15 @@
 # Python enumeration metaclass
 # Taken from http://www.python.org/doc/essays/metaclasses/Enum.py
+# Modifications added to make it into a true metaclass (use of __new__ for example)
 
 """Enumeration metaclass.
-
-XXX This is very much a work in progress.
-
 """
 
-import string
+from types import IntType
+from optparse import OptionParser,OptionValueError,Option
+from copy import copy
 
-class EnumMetaClass:
+class EnumMetaClass(type):
 	"""Metaclass for enumeration.
 
 	To define your own enumeration, do something like
@@ -27,7 +27,7 @@ class EnumMetaClass:
 
 	"""
 
-	def __init__(self, name, bases, dict):
+	def __new__(meta, name, bases, dict):
 		"""Constructor -- create an enumeration.
 
 		Called at the end of the class statement.  The arguments are
@@ -38,44 +38,13 @@ class EnumMetaClass:
 		'green': 2, 'blue': 3}.
 
 		"""
-		for base in bases:
-			if base.__class__ is not EnumMetaClass:
-				raise TypeError, "Enumeration base class must be enumeration"
-		bases = filter(lambda x: x is not Enum, bases)
-		self.__name__ = name
-		self.__bases__ = bases
-		self.__dict = {}
+		newDict = {}
 		for key, value in dict.items():
-			self.__dict[key] = EnumInstance(name, key, value)
+			if type(value) == IntType:
+				value = EnumInstance(name, key, value)
+			newDict[key] = value
 
-	def __getattr__(self, name):
-		"""Return an enumeration value.
-
-		For example, Color.red returns the value corresponding to red.
-
-		XXX Perhaps the values should be created in the constructor?
-
-		This looks in the class dictionary and if it is not found
-		there asks the base classes.
-
-		The special attribute __members__ returns the list of names
-		defined in this class (it does not merge in the names defined
-		in base classes).
-
-		"""
-		if name == '__members__':
-			return [x for x in self.__dict.keys() if len(x)<2 or x[:2]!="__"]
-
-		try:
-			return self.__dict[name]
-		except KeyError:
-			for base in self.__bases__:
-				try:
-					return getattr(base, name)
-				except AttributeError:
-					continue
-
-		raise AttributeError, name
+		return type.__new__(meta, name, bases, newDict)
 
 	def valid(self,name):
 		if name in self.__dict:
@@ -102,15 +71,13 @@ class EnumMetaClass:
 	def __repr__(self):
 		s = self.__name__
 		if self.__bases__:
-			s = s + '(' + string.join(map(lambda x: x.__name__,
-										  self.__bases__), ", ") + ')'
-		if self.__dict:
-			list = []
-			for key, value in self.__dict.items():
-				if key[0] == "_":
-					continue
-				list.append("%s: %s" % (key, value.value()))
-			s = "%s: {%s}" % (s, string.join(list, ", "))
+			s = s + '(' + ", ".join(x.__name__ for x in self.__bases__ if x != Enum) + ')'
+		list = []
+		for key in dir(self):
+			if key[0] == "_":
+				continue
+			list.append("%s: %s" % (key, getattr(self,key).value()))
+		s = "%s: {%s}" % (s, ", ".join(list))
 		return s
 	
 	def name(self):
@@ -130,9 +97,6 @@ class EnumInstance:
 
 	EnumInstance('Color', 'red', 12) prints as 'Color.red' and behaves
 	like the integer 12 when compared, but doesn't support arithmetic.
-
-	XXX Should it record the actual enumeration rather than just its
-	name?
 
 	"""
 
@@ -169,10 +133,8 @@ class EnumInstance:
 
 # Create the base class for enumerations.
 # It is an empty enumeration.
-Enum = EnumMetaClass("Enum", (), {})
-
-from optparse import OptionParser,OptionValueError,Option
-from copy import copy
+class Enum:
+	__metaclass__ = EnumMetaClass
 
 def check_enum(option, opt, value):
 	try:
@@ -245,8 +207,6 @@ def _test():
 	print ExtendedColor
 	print OtherColor
 	print MergedColor
-
-
 
 if __name__ == '__main__':
 	_test()

@@ -1,6 +1,6 @@
 #!/usr/bin/python
-# Comics Grabber by Tom Parker <palfrey@bits.bris.ac.uk>
-# http://www.bits.bris.ac.uk/palfrey/
+# Comics Grabber by Tom Parker <palfrey@tevp.net>
+# http://tevp.net
 #
 # URLTimeoutCurl class
 # Grabs URLs, but with a timeout to avoid locking on crapped-up sites.	

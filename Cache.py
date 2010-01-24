@@ -123,7 +123,7 @@ class Cache:
 
 		try:
 			new_old = self.grabber.get_url(url,ref=ref,headers=headers,data=data)
-		except URLTimeout.URLOldDataError:
+		except URLOldDataError:
 			old.used = now
 			old.seek(0)
 			self.dump(old.url,old.ref)

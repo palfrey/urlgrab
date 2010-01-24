@@ -47,18 +47,18 @@ class EnumMetaClass(type):
 		return type.__new__(meta, name, bases, newDict)
 
 	def valid(self,name):
-		if name in self.__dict:
-			return self.__dict[name]
+		if hasattr(self,name):
+			return getattr(self,name)
 		else:
 			raise ValueError, "Specified name not in enum"
 
 	def getWithValue(self,value):
 		try:
-			for k in self.__dict:
+			for k in dir(self):
 				if k[0] == "_":
 					continue
-				if self.__dict[k].value() == value:
-					return self.__dict[k]
+				if getattr(self,k).value() == value:
+					return getattr(self,k)
 		except KeyError:
 			for base in self.__bases__:
 				try:
@@ -87,7 +87,7 @@ class EnumMetaClass(type):
 		return separator.join(self.__members__)
 
 	def __iter__(self):
-		values = [self.__dict[x] for x in self.__members__ if x[0]!="_"]
+		values = [getattr(self,x) for x in self.__members__ if x[0]!="_"]
 		for base in self.__bases__:
 			values.extend(list(base.__iter__(self)))
 		return iter(sorted(values))

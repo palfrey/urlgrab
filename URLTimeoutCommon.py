@@ -6,7 +6,6 @@
 # common stuff for the other URLTimeout* modules
 #	
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
-debug = False
 
 from sys import version_info
 from urlparse import urljoin
@@ -14,6 +13,13 @@ from local_dict import apply_vars
 from os import SEEK_SET, SEEK_CUR, SEEK_END
 from types import ListType
 import __builtin__
+from Enum import Enum
+from os.path import dirname,basename
+import urlparse
+try:
+	from os import popen
+except ImportError: # occurs on Google AppEngine
+	popen = None
 
 class URLTimeoutError(Exception):
 	def __init__(self,string,url, code = -1):
@@ -21,12 +27,8 @@ class URLTimeoutError(Exception):
 		self.url = url
 		self.code = code
 
-class URLOldDataError(Exception):
-	pass
-
-			
 class URLHeaders:
-	def __init__(self,headers):
+	def __init__(self,headers, debug = False):
 		self.headers = headers
 		if debug:
 			print self.headers
@@ -203,14 +205,6 @@ class URLGetter:
 			else:
 				info[type] = temp
 		return info
-
-from Enum import Enum
-from os.path import dirname,basename
-import urlparse
-try:
-	from os import popen
-except ImportError: # occurs on Google AppEngine
-	popen = None
 
 class URLPython:
 	def __init__(self,url,debug=False):

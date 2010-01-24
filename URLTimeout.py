@@ -18,7 +18,7 @@ class URLTimeout:
 				break
 			except ImportError,e:
 				if debug:
-					print "%s importing error"%m,e
+					print "%s importing error:"%m,e
 		else:
 			raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"
 		

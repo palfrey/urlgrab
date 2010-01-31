@@ -40,7 +40,10 @@ class URLTimeoutCurl(URLGetter):
 		if hasattr(self, "user"):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))
-		c.setopt(c.URL, url)
+		if type(url) == unicode:
+			c.setopt(c.URL, url.encode("ascii"))
+		else:
+			c.setopt(c.URL, url)
 		c.setopt(c.WRITEFUNCTION, self.body_callback)
 		c.setopt(c.HEADERFUNCTION, self.head_callback)
 		c.setopt(c.HTTPHEADER,[x+": "+headers[x] for x in headers.keys()])

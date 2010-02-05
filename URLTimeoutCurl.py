@@ -24,8 +24,8 @@ class URLTimeoutCurl(URLGetter):
 		self.user = user
 		self.password = password
 
-	def get_url(self,url,**kwargs):
-		kwargs = apply_vars(kwargs, self.get_url_args)
+	def get(self,url,**kwargs):
+		kwargs = apply_vars(kwargs, self.get_args)
 		exec('pass') # apply locals. Copy+paste magic...
 		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
 

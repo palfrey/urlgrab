@@ -122,7 +122,7 @@ class Cache:
 		self.grabber.setTimeout(timeout)
 
 		try:
-			new_old = self.grabber.get_url(url,ref=ref,headers=headers,data=data)
+			new_old = self.grabber.get(url,ref=ref,headers=headers,data=data)
 		except URLOldDataError:
 			old.used = now
 			old.seek(0)

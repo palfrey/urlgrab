@@ -22,8 +22,8 @@ class URLTimeout:
 		else:
 			raise Exception, "Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!"
 		
-	def get_url(self,url,ref=None,headers={},data=None,ignore_move=False, proxy=None):
-		return self.__ut.get_url(url,ref=ref,headers=headers,data=data,ignore_move=ignore_move, proxy=proxy)
+	def get(self,url,ref=None,headers={},data=None,ignore_move=False, proxy=None):
+		return self.__ut.get(url,ref=ref,headers=headers,data=data,ignore_move=ignore_move, proxy=proxy)
 
 	def auth(self,user,password):
 		return self.__ut.auth(user,password)
@@ -35,5 +35,5 @@ class URLTimeout:
 		return self.__ut.getTimeout(val)
 
 if __name__ == "__main__":
-	obj = URLTimeout(debug=True).get_url("http://www.google.com")
+	obj = URLTimeout(debug=True).get("http://www.google.com")
 	print obj

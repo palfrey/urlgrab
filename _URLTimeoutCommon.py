@@ -159,10 +159,10 @@ class URLGetter:
 	def auth(self,user,password):
 		raise Exception, "%s has not defined auth"%self.__class__
 
-	def get_url(self,*args):
-		raise Exception, "%s has not defined get_url"%self.__class__
+	def get(self,*args):
+		raise Exception, "%s has not defined get"%self.__class__
 
-	get_url_args = ('headers','proxy','ref','ignore_move')
+	get_args = ('headers','proxy','ref','ignore_move')
 
 	def check_move(self, status, kwargs):
 		apply_vars(kwargs)
@@ -178,7 +178,7 @@ class URLGetter:
 					raise URLTimeoutError,("301/302/303, but no location!",url,status)
 				del kwargs['url']
 				del kwargs['self']
-				return self.get_url(urljoin(url,newuri),**kwargs)
+				return self.get(urljoin(url,newuri),**kwargs)
 					
 			except:
 				print "info",info

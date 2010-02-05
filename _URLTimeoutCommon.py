@@ -9,11 +9,11 @@
 
 from sys import version_info
 from urlparse import urljoin
-from local_dict import apply_vars
+from _local_dict import apply_vars
 from os import SEEK_SET, SEEK_CUR, SEEK_END
 from types import ListType
 import __builtin__
-from Enum import Enum
+from _Enum import Enum
 from os.path import dirname,basename
 import urlparse
 try:

@@ -8,8 +8,8 @@
 
 from urllib import urlencode
 
-from URLTimeoutCommon import *
-from local_dict import apply_vars
+from _URLTimeoutCommon import *
+from _local_dict import apply_vars
 
 from google.appengine.api.urlfetch import fetch, DownloadError
 

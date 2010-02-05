@@ -5,8 +5,8 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 import os,md5,time,sys
 from cPickle import dump,load,UnpicklingError
-from URLTimeout import URLTimeout
-from URLTimeoutCommon import URLObject, URLTimeoutError
+from _URLTimeout import URLTimeout
+from _URLTimeoutCommon import URLObject, URLTimeoutError
 from stat import ST_MTIME
 import copy
 

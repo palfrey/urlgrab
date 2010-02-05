@@ -1,3 +1,3 @@
-from Cache import Cache, URLOldDataError
-from URLTimeout import URLTimeout
-from URLTimeoutCommon import URLTimeoutError
+from _Cache import Cache, URLOldDataError
+from _URLTimeout import URLTimeout
+from _URLTimeoutCommon import URLTimeoutError

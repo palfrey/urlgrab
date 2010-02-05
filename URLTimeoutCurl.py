@@ -8,7 +8,7 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 import pycurl,re
-from URLTimeoutCommon import *
+from _URLTimeoutCommon import *
 from urllib import urlencode
 
 class URLTimeoutCurl(URLGetter):
@@ -24,7 +24,11 @@ class URLTimeoutCurl(URLGetter):
 		self.user = user
 		self.password = password
 
-	def get_url(self,url,ref=None,headers={},data=None,ignore_move=False):
+	def get_url(self,url,**kwargs):
+		kwargs = apply_vars(kwargs, self.get_url_args)
+		exec('pass') # apply locals. Copy+paste magic...
+		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
+
 		resp = handleurl(url)
 		if resp!=None:
 			return URLObject(url,None,resp.body,resp.msg.headers)

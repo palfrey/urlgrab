@@ -13,7 +13,7 @@ import asynchttp
 from urllib import urlencode
 
 from alarms import AsyncAlarmMixin
-from URLTimeoutCommon import *
+from _URLTimeoutCommon import *
 from local_dict import apply_vars
 
 debug = True

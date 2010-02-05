@@ -156,8 +156,11 @@ class URLGetter:
 	def getTimeout(self):
 		return self.timeout
 
+	def auth(self,user,password):
+		raise Exception, "%s has not defined auth"%self.__class__
+
 	def get_url(self,*args):
-		raise Exception, "Warning: subclass has not defined get_url"
+		raise Exception, "%s has not defined get_url"%self.__class__
 
 	get_url_args = ('headers','proxy','ref','ignore_move')
 

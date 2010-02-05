@@ -25,6 +25,9 @@ class URLTimeout:
 	def get_url(self,url,ref=None,headers={},data=None,ignore_move=False, proxy=None):
 		return self.__ut.get_url(url,ref=ref,headers=headers,data=data,ignore_move=ignore_move, proxy=proxy)
 
+	def auth(self,user,password):
+		return self.__ut.auth(user,password)
+
 if __name__ == "__main__":
 	obj = URLTimeout(debug=True).get_url("http://www.google.com")
 	print obj

@@ -90,6 +90,9 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			print "we already killed this (alarm)"		
 
 class URLTimeoutAsync(URLGetter):
+	def auth(self,user,password):
+		raise Exception, "URLTimeoutAsync doesn't do basic auth yet!"
+
 	def get_url(self,url,**kwargs):
 		kwargs = apply_vars(kwargs, self.get_url_args)
 		exec('pass') # apply locals. Copy+paste magic...

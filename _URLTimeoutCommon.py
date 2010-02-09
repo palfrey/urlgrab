@@ -16,6 +16,7 @@ import __builtin__
 from _Enum import Enum
 from os.path import dirname,basename
 import urlparse
+from urllib2 import URLError
 try:
 	from os import popen
 except ImportError: # occurs on Google AppEngine
@@ -248,8 +249,7 @@ def handleurl(url):
 	try:
 		mykind = Kind.valid(bits[0])
 	except ValueError:
-		print "bits",bits
-		raise
+		raise URLError, "'%s' isn't a valid URL!"%url
 
 	#print "kind",url,mykind,rest
 	if mykind == Kind.file:

@@ -14,7 +14,7 @@ from urllib import urlencode
 
 from alarms import AsyncAlarmMixin
 from _URLTimeoutCommon import *
-from local_dict import apply_vars
+from _local_dict import apply_vars
 
 debug = True
 

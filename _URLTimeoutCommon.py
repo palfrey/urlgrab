@@ -242,9 +242,11 @@ class Kind(Enum):
 	python=3
 
 def handleurl(url):
+	if url == "":
+		raise URLError, "Need a URL!"
 	bits = urlparse.urlsplit(url)
 	rest ="".join(bits[1:])
-	while rest[0]=="/":
+	while len(rest)>0 and rest[0]=="/":
 		rest = rest[1:]
 	try:
 		mykind = Kind.valid(bits[0])

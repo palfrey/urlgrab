@@ -10,7 +10,12 @@
 from sys import version_info
 from urlparse import urljoin
 from _local_dict import apply_vars
-from os import SEEK_SET, SEEK_CUR, SEEK_END
+try:
+	from os import SEEK_SET, SEEK_CUR, SEEK_END
+except ImportError: # python <2.5
+	SEEK_SET = 0
+	SEEK_CUR = 1
+	SEEK_END = 2
 from types import ListType
 import __builtin__
 from _Enum import Enum

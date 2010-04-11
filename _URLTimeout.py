@@ -13,7 +13,7 @@ class URLTimeout:
 		modules = ("URLTimeoutCurl", "URLTimeoutAsync", "URLTimeoutAppEngine")
 		for m in modules:
 			try:
-				mod = __import__(m, globals(), locals(), [m], -1)
+				mod = __import__(m, globals(), locals(), [m])
 				self.__ut = getattr(mod,m)(debug=debug)
 				break
 			except ImportError,e:

@@ -15,6 +15,8 @@ class URLTimeout:
 			try:
 				mod = __import__(m, globals(), locals(), [m])
 				self.__ut = getattr(mod,m)(debug=debug)
+				if debug:
+					print "using %s"%m
 				break
 			except ImportError,e:
 				if debug:

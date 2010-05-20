@@ -35,7 +35,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 		if bits[1].find(':')==-1:
 			asynchttp.AsyncHTTPConnection.__init__(self, bits[1], 80)
 		else:
-			asynchttp.AsyncHTTPConnection.__init__(self, bits[1][:bits[1].find(':')], int(bits[1][bits[1].find(':'):]))
+			asynchttp.AsyncHTTPConnection.__init__(self, bits[1][:bits[1].find(':')], int(bits[1][bits[1].find(':')+1:]))
 		AsyncAlarmMixin.__init__(self)
 		self.set_relative_alarm(uts.getTimeout())
 		url = bits[2]

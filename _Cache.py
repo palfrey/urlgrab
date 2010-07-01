@@ -3,7 +3,7 @@
 # http://tevp.net/
 #
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
-import os,md5,time,sys
+import os,time,sys
 from cPickle import dump,load,UnpicklingError
 from _URLTimeout import URLTimeout
 from _URLTimeoutCommon import URLObject, URLTimeoutError
@@ -14,6 +14,18 @@ try:
 	from google.appengine.api import memcache
 except ImportError:
 	memcache = None
+
+try:
+	import hashlib
+except ImportError: # python < 2.5
+	import md5
+	hashlib = None
+
+def hexdigest_md5(data):
+	if hashlib:
+		return hashlib.md5(data).hexdigest()
+	else:
+		return md5.new(data).hexdigest()
 
 class URLOldDataError(Exception):
 	pass
@@ -60,10 +72,7 @@ class Cache:
 		self.grabber.auth(user,password)
 
 	def _md5(self,url,ref):
-		m = md5.new()
-		m.update(url.decode("ascii","ignore"))
-		m.update(str(ref))
-		return m.hexdigest()
+		return hexdigest_md5(url.decode("ascii","ignore")+str(ref))
 		
 	def _dump(self,url,ref):
 		self.__load__(url,ref)

@@ -49,9 +49,13 @@ class URLHeaders:
 		else:
 			raise Exception, "No content type header!"
 		if type(ct) == ListType:
-			for x in ct[1:]:
-				assert x == ct[0],(x,ct)
-			ct = ct[0]
+			good = None
+			for x in ct:
+				if good:
+					assert x == good,(x,ct, self.headers)
+				elif x.find("/")!=-1:
+					good = x
+			ct = good
 		mime = ct.split("/",1)
 		mime[1:] = mime[1].split(";",1)
 		if version_info >= (2,3,0):

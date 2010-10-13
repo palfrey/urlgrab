@@ -57,7 +57,7 @@ class URLTimeoutCurl(URLGetter):
 		c.setopt(c.LOW_SPEED_LIMIT, 15) # 15 bytes/sec = dead. Random value.
 		c.setopt(c.LOW_SPEED_TIME, self.getTimeout()) # i.e. dead (< 15 bytes/sec) 
 		if ref!=None:
-			c.setopt(c.REFERER, ref)
+			c.setopt(c.REFERER, str(ref))
 
 		try:
 			c.perform()

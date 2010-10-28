@@ -31,14 +31,14 @@ class URLOldDataError(Exception):
 	pass
 
 class Cache:
-	def __init__(self,cche="cache", debug=False):
-		self.cache = cche
+	def __init__(self,cache="cache", debug=False):
+		self.cache = cache
 		self.store = {}
 		self.debug = debug
 		self.grabber = URLTimeout(debug)
 		self.default_timeout = self.grabber.getTimeout()
-		if memcache == None and not os.path.exists(cche):
-			os.mkdir(cche)
+		if memcache == None and not os.path.exists(cache):
+			os.mkdir(cache)
 
 	def __load__(self,url,ref):
 		hash = self._md5(url,ref)

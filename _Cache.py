@@ -6,7 +6,7 @@
 import os,time,sys
 from cPickle import dump,load,UnpicklingError
 from _URLTimeout import URLTimeout
-from _URLTimeoutCommon import URLObject, URLTimeoutError
+from _URLTimeoutCommon import URLTimeoutError
 from stat import ST_MTIME
 import copy
 
@@ -160,6 +160,31 @@ class Cache:
 		if self.debug:
 			print "Grabbed",old.url,old.ref
 		return old
+	
+	def delete(self, obj): # removes from cache
+		hash = self._md5(obj.url,obj.ref)
+
+		if self.store.has_key(hash):
+			if self.debug:
+				print "deleting",self.url,self.ref,hash
+			if memcache!=None:
+				memcache.delete(hash)
+			else:
+				path = os.path.join(self.cache,hash+".cache")
+				if os.path.exists(path):
+					os.unlink(path)
+			del self.store[hash]
+
+		else:
+			raise Exception, "We never got that URL! ("+obj.url+")"
+	
+	def urlretrieve(self, url, fname):
+		obj = self.get(url)
+		if obj == None:
+			return False
+		file(fname, "wb").write(obj.read())
+		self.delete(obj)
+		return True
 
 if __name__ == "__main__":
 	c = Cache(debug=True)

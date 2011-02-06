@@ -40,8 +40,8 @@ class Cache:
 		if memcache == None and not os.path.exists(cache):
 			os.mkdir(cache)
 
-	def __load__(self,url,ref):
-		hash = self._md5(url,ref)
+	def __load__(self,url,ref, data = None):
+		hash = self._md5(url,ref,data)
 		if self.store.has_key(hash):
 			return
 		if memcache:
@@ -58,10 +58,10 @@ class Cache:
 				old.seek(0)
 				if len(old.readall())==0:
 					raise EOFError()
-				self.store[self._md5(old.url,old.ref)] = old
+				self.store[self._md5(old.url,old.ref,old.postData)] = old
 				if self.debug:
-					print "loaded",old.url,old.ref,self._md5(old.url,old.ref)
-				if(self._md5(old.url,old.ref)!=f[:-len(".cache")]):
+					print "loaded",old.url,old.ref,self._md5(old.url,old.ref,old.postData)
+				if(self._md5(old.url,old.ref,old.postData)!=f[:-len(".cache")]):
 					raise Exception,"md5 problem!"
 			except (EOFError,ValueError,UnpicklingError,ImportError): # ignore and discard				
 				if self.debug:
@@ -71,12 +71,12 @@ class Cache:
 	def auth(self,user,password):
 		self.grabber.auth(user,password)
 
-	def _md5(self,url,ref):
-		return hexdigest_md5(url.decode("ascii","ignore")+str(ref))
+	def _md5(self,url,ref,data):
+		return hexdigest_md5(url.decode("ascii","ignore")+str(ref)+str(data))
 		
-	def _dump(self,url,ref):
-		self.__load__(url,ref)
-		hash = self._md5(url,ref)
+	def _dump(self,url,ref,data):
+		self.__load__(url,ref,data)
+		hash = self._md5(url,ref,data)
 
 		if self.store.has_key(hash):
 			if self.debug:
@@ -98,7 +98,7 @@ class Cache:
 		if self.debug:
 			print "Grabbing",url
 		self.__load__(url,ref)
-		hash = self._md5(url,ref)
+		hash = self._md5(url,ref,data)
 		if self.user_agent!=None:
 			headers["User-Agent"] = self.user_agent
 		now = time.time()
@@ -110,7 +110,7 @@ class Cache:
 				if max_age==-1 or now-old.checked < max_age:
 					old.seek(0)
 					old.used = now
-					self._dump(old.url,old.ref)
+					self._dump(old.url,old.ref,old.postData)
 					return old
 
 				if old.info().get("Last-Modified")!=None:
@@ -121,7 +121,7 @@ class Cache:
 				try:
 					if os.stat(url[len("file://"):])[ST_MTIME] <= old.checked:
 						old.checked = old.used = now
-						self._dump(old.url,old.ref)
+						self._dump(old.url,old.ref,old.postData)
 						return old
 				except OSError,e:
 					raise URLTimeoutError, (str(e),url)
@@ -135,18 +135,18 @@ class Cache:
 		except URLOldDataError:
 			old.used = now
 			old.seek(0)
-			self._dump(old.url,old.ref)
+			self._dump(old.url,old.ref,old.postData)
 			return old
 
 		old = new_old
-		hash = self._md5(old.url,old.ref)
+		hash = self._md5(old.url,old.ref,old.postData)
 		self.store[hash] = old
 		old.checked = old.used = now
 		old.seek(0)
 		if old.url!=url:
 			if self.debug:
 				print "url != old.url, so storing both"
-			hash = self._md5(url,ref)
+			hash = self._md5(url,ref,data)
 			other = copy.copy(old)
 			other.url = url
 			other.ref = ref
@@ -154,15 +154,15 @@ class Cache:
 			other.checked = other.used = now
 			
 		if len(old.headers.headers)>0:
-			self._dump(old.url,old.ref)
+			self._dump(old.url,old.ref,old.postData)
 			if old.url!=url:
-				self._dump(url,ref)
+				self._dump(url,ref,data)
 		if self.debug:
 			print "Grabbed",old.url,old.ref
 		return old
 	
 	def delete(self, obj): # removes from cache
-		hash = self._md5(obj.url,obj.ref)
+		hash = self._md5(obj.url,obj.ref,obj.postData)
 
 		if self.store.has_key(hash):
 			if self.debug:

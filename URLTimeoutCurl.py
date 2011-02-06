@@ -31,7 +31,7 @@ class URLTimeoutCurl(URLGetter):
 
 		resp = handleurl(url)
 		if resp!=None:
-			return URLObject(url,None,resp.body,resp.msg.headers)
+			return URLObject(url,None,resp.body,resp.msg.headers,data)
 	
 		self.contents = ""
 		self.header = ""
@@ -96,5 +96,5 @@ class URLTimeoutCurl(URLGetter):
 			if status[0] !=200:
 				raise URLTimeoutError,(str(status[0])+" "+status[1],url)
 		
-			return URLObject(origurl,None,self.contents,info)
+			return URLObject(origurl,None,self.contents,info,data)
 		raise URLTimeoutError,("No Headers!",url)

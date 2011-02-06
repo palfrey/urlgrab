@@ -100,12 +100,13 @@ else:
 ascii = codecs.lookup('ascii')[0]
 
 class URLObject:
-	def __init__(self,url,ref,data,headers={}):
+	def __init__(self,url,ref,data,headers={},postData=None):
 		self.url = url
 		self.data = data
 		self.ref = ref
 		self.headers = URLHeaders(headers)
 		self.location = 0
+		self.postData = postData
 		
 		if data!=None and headers!={} and self.getmime()[0] !="image":
 			for x in codec.keys():

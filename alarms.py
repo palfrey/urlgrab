@@ -56,7 +56,7 @@ class AsyncAlarmMixin:
             map=asyncore.socket_map
 
         if hasattr (select, 'poll'):
-        	poll_fun = asyncore.poll3
+            poll_fun = asyncore.poll3
         else:
             poll_fun = asyncore.poll
 
@@ -67,7 +67,10 @@ class AsyncAlarmMixin:
             t = timeout
             if self.alarms:
                 t = min(timeout, max(self.alarms[0][0]-time.time(), 0.01))
-            poll_fun (t, map)
+            if hasattr (asyncore, 'loop'):
+                asyncore.loop(timeout=t, map=map)
+            else:
+                poll_fun (t, map)
 
 if __name__ == "__main__":
     import time

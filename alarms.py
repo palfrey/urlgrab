@@ -50,16 +50,13 @@ class AsyncAlarmMixin:
         print "alarm @ %.5f with data %s handled @ %.5f" % \
               (self.alarms[0][0], self.alarms[0][1], time.time())
 
-    def loop (self, timeout=30.0, use_poll=True, map=None):
+    def loop (self, timeout=30.0, map=None):
         """alternate event loop for asyncore apps that handles alarms"""
         if map is None:
             map=asyncore.socket_map
 
-        if use_poll:
-            if hasattr (select, 'poll'):
-                poll_fun = asyncore.poll3
-            else:
-                poll_fun = asyncore.poll2
+        if hasattr (select, 'poll'):
+        	poll_fun = asyncore.poll3
         else:
             poll_fun = asyncore.poll
 

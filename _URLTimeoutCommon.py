@@ -27,6 +27,18 @@ try:
 except ImportError: # occurs on Google AppEngine
 	popen = None
 
+try:
+	import hashlib
+except ImportError: # python < 2.5
+	import md5
+	hashlib = None
+
+def hexdigest_md5(data):
+	if hashlib:
+		return hashlib.md5(data).hexdigest()
+	else:
+		return md5.new(data).hexdigest()
+
 class URLTimeoutError(Exception):
 	def __init__(self,string,url, code = -1):
 		Exception.__init__(self,"%s - %s"%(string,url))
@@ -159,6 +171,13 @@ class URLObject:
 	
 	def getmime(self):
 		return self.headers.getmime()
+
+	def hash(self):
+		return URLObject.md5(self.url, self.ref, self.postData)
+
+	@staticmethod
+	def md5(url,ref,data):
+		return hexdigest_md5(url.decode("ascii","ignore")+str(ref)+str(data))
 
 class URLGetter:
 	def __init__(self,debug = False):

@@ -94,7 +94,7 @@ class URLTimeoutCurl(URLGetter):
 				raise URLOldDataError
 			
 			if status[0] !=200:
-				raise URLTimeoutError,(str(status[0])+" "+status[1],url)
+				raise URLTimeoutError,(str(status[0])+" "+status[1],url, status[0])
 		
 			return URLObject(origurl,None,self.contents,info,data)
 		raise URLTimeoutError,("No Headers!",url)

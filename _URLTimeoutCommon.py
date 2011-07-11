@@ -278,6 +278,7 @@ class Kind(Enum):
 	http=1
 	file=2
 	python=3
+	https=4
 
 def handleurl(url):
 	if url == "":
@@ -296,6 +297,8 @@ def handleurl(url):
 		return URLFile(rest)
 	elif mykind == Kind.python:
 		return URLPython(rest)
-	elif mykind == Kind.http:
+	elif mykind == Kind.http or mykind == Kind.https:
 		return None
+	else:
+		raise Exception, mykind
 	

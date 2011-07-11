@@ -59,7 +59,7 @@ class URLHeaders:
 		elif self.headers.has_key("Content-type"):
 			ct = self.headers["Content-type"]
 		else:
-			raise Exception, "No content type header!"
+			raise KeyError, "No content type header!"
 		if type(ct) == ListType:
 			good = None
 			for x in ct:
@@ -120,12 +120,17 @@ class URLObject:
 		self.location = 0
 		self.postData = postData
 		
-		if data!=None and headers!={} and self.getmime()[0] !="image":
-			for x in codec.keys():
-				if self.data[0:len(x)] == x:
-					self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
-					print "recoded",url
-					break			
+		if data!=None and headers!={}:
+			try:
+				mime = self.getmime()
+			except KeyError:
+				return
+			if mime[0] !="image":
+				for x in codec.keys():
+					if self.data[0:len(x)] == x:
+						self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
+						print "recoded",url
+						break			
 	
 	def geturl(self):
 		return self.url

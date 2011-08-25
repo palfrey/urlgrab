@@ -151,7 +151,7 @@ class Cache:
 
 		if self.store.has_key(hash):
 			if self.debug:
-				print "deleting",self.url,self.ref,hash
+				print "deleting",obj.url,obj.ref,hash
 			if memcache!=None:
 				memcache.delete(hash)
 			else:

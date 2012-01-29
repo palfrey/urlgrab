@@ -9,6 +9,7 @@ from _URLTimeout import URLTimeout
 from _URLTimeoutCommon import URLTimeoutError, URLObject
 from stat import ST_MTIME
 import copy
+from zlib import compress, decompress
 
 try:
 	from google.appengine.api import memcache
@@ -36,6 +37,7 @@ class Cache:
 			get = memcache.get(hash)
 			if get != None:
 				self.store[hash] = get
+				self.store[hash].data = decompress(self.store[hash].data) 
 			return
 		f = hash+".cache"
 		if f in os.listdir(self.cache):
@@ -67,6 +69,7 @@ class Cache:
 			if self.debug:
 				print "dumping",url,ref,hash
 			if memcache!=None:
+				self.store[hash].data = compress(self.store[hash].data) 
 				memcache.set(hash, self.store[hash])
 			else:
 				f = file(os.path.join(self.cache,hash+".cache"),'wb')

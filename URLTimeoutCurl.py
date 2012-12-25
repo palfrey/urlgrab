@@ -15,17 +15,6 @@ charsetPattern = re.compile("charset=(\S+)")
 
 class URLTimeoutCurl(URLGetter):
 	def body_callback(self, buf):
-		hdrs = self.header.splitlines()
-		if len(hdrs)>1:
-			info = self.gen_headers(hdrs[1:])
-			if "Content-Type" in info:
-				ct = info["Content-Type"]
-				if ct.find("charset")!=-1:
-					charset = charsetPattern.search(ct)
-					if charset!= None:
-						enc = charset.groups()[0]
-						buf = unicode(buf, enc)
-
 		self.contents += buf
 		if hasattr(self, "write_callback"):
 			self.write_callback(len(self.contents))
@@ -82,9 +71,19 @@ class URLTimeoutCurl(URLGetter):
 		if self.contents=="" and self.header == "":
 			raise URLTimeoutError, ("Timed out!",url)
 		
+		hdrs = self.header.splitlines()
+		if len(hdrs)>1:
+			info = self.gen_headers(hdrs[1:])
+			if "Content-Type" in info:
+				ct = info["Content-Type"]
+				if ct.find("charset")!=-1:
+					charset = charsetPattern.search(ct)
+					if charset!= None:
+						enc = charset.groups()[0]
+						self.contents = unicode(self.contents, enc)
+
 		info = {}
 		status = 0
-		hdrs = self.header.splitlines()
 
 		if hdrs != []:
 			last_ok = 0

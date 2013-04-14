@@ -23,7 +23,10 @@ from os.path import dirname,basename
 import urlparse
 from urllib2 import URLError
 from xdg import Mime
-import magic
+try:
+	import magic
+except ImportError: # no magic
+	magic = None
 try:
 	from os import popen
 except ImportError: # occurs on Google AppEngine
@@ -267,10 +270,11 @@ class URLPython:
 def get_good_mime(filename):
     mime = Mime.get_type_by_contents(filename)
     if mime == None: # try magic instead
-        mime = magic.open(magic.MAGIC_MIME)
-        mime.load()
-        mime = mime.file(filename)
-        mime = mime.split(";")[0]
+		if magic!=None:
+			mime = magic.open(magic.MAGIC_MIME)
+			mime.load()
+			mime = mime.file(filename)
+			mime = mime.split(";")[0]
     else:
         mime = str(mime)
     return mime

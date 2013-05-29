@@ -39,6 +39,8 @@ class URLTimeoutCurl(URLGetter):
 		self.header = ""
 		origurl = url
 		c = pycurl.Curl()
+		if self.debug:
+			c.setopt(pycurl.VERBOSE, 1)
 		if hasattr(self, "user"):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))

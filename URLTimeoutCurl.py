@@ -82,7 +82,11 @@ class URLTimeoutCurl(URLGetter):
 					charset = charsetPattern.search(ct)
 					if charset!= None:
 						enc = charset.groups()[0]
-						self.contents = unicode(self.contents, enc)
+						try:
+							newcontents = unicode(self.contents, enc)
+							self.contents = newcontents
+						except LookupError: # can't find the relevant encoding, assume all ok without...
+							pass
 
 		info = {}
 		status = 0

@@ -80,7 +80,7 @@ class Cache:
 	
 	user_agent = None
 	
-	def get(self,url,ref=None, max_age=3600, data = None,headers={}, timeout=None): # 3600 seconds = 60 minutes
+	def get(self,url,ref=None, max_age=3600, data = None,headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
 		if timeout == None:
 			timeout = self.default_timeout
 		if self.debug:
@@ -119,7 +119,7 @@ class Cache:
 		self.grabber.setTimeout(timeout)
 
 		try:
-			new_old = self.grabber.get(url,ref=ref,headers=headers,data=data)
+			new_old = self.grabber.get(url,ref=ref,headers=headers,data=data,ignore_move = ignore_move)
 		except URLOldDataError:
 			old.used = now
 			old.seek(0)

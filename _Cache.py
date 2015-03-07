@@ -166,9 +166,9 @@ class Cache:
 		else:
 			raise Exception, "We never got that URL! ("+obj.url+")"
 	
-	def urlretrieve(self, url, fname):
+	def urlretrieve(self, url, fname, ref = None):
 		try:
-			obj = self.get(url)
+			obj = self.get(url, ref = ref)
 		except URLTimeoutError:
 			return False
 		file(fname, "wb").write(obj.read())

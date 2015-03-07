@@ -47,7 +47,7 @@ class URLTimeoutCurl(URLGetter):
 		c.setopt(c.WRITEFUNCTION, self.body_callback)
 		c.setopt(c.HEADERFUNCTION, self.head_callback)
 		c.setopt(c.HTTPHEADER,[x+": "+headers[x] for x in headers.keys()])
-
+		c.setopt(pycurl.ENCODING, '')
 		if data!=None:
 			enc = urlencode(data)
 			#c.setopt(c.POST,1)

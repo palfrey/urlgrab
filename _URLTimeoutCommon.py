@@ -22,6 +22,11 @@ from _Enum import Enum
 from os.path import dirname,basename
 import urlparse
 from urllib2 import URLError
+from xdg import Mime
+try:
+	import magic
+except ImportError: # no magic
+	magic = None
 try:
 	from os import popen
 except ImportError: # occurs on Google AppEngine
@@ -262,6 +267,18 @@ class URLPython:
 		self.status = 200
 		self.body = "".join(data[2:])
 
+def get_good_mime(filename):
+    mime = Mime.get_type_by_contents(filename)
+    if mime == None: # try magic instead
+		if magic!=None:
+			mime = magic.open(magic.MAGIC_MIME)
+			mime.load()
+			mime = mime.file(filename)
+			mime = mime.split(";")[0]
+    else:
+        mime = str(mime)
+    return mime
+
 class URLFile:
 	def __init__(self,url,debug=False):
 		if debug:
@@ -272,6 +289,7 @@ class URLFile:
 		except IOError,e:
 			raise URLTimeoutError, (str(e),url)
 		self.msg = URLHeaders({})
+		self.msg.headers["Content-type"] = get_good_mime(url)
 		self.status = 200
 
 class Kind(Enum):

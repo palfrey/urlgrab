@@ -11,6 +11,8 @@ import pycurl,re
 from _URLTimeoutCommon import *
 from urllib import urlencode
 
+charsetPattern = re.compile("charset=(\S+)")
+
 class URLTimeoutCurl(URLGetter):
 	def body_callback(self, buf):
 		self.contents += buf
@@ -37,6 +39,8 @@ class URLTimeoutCurl(URLGetter):
 		self.header = ""
 		origurl = url
 		c = pycurl.Curl()
+		if self.debug:
+			c.setopt(pycurl.VERBOSE, 1)
 		if hasattr(self, "user"):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))
@@ -69,9 +73,23 @@ class URLTimeoutCurl(URLGetter):
 		if self.contents=="" and self.header == "":
 			raise URLTimeoutError, ("Timed out!",url)
 		
+		hdrs = self.header.splitlines()
+		if len(hdrs)>1:
+			info = self.gen_headers(hdrs[1:])
+			if "Content-Type" in info:
+				ct = info["Content-Type"]
+				if ct.find("charset")!=-1:
+					charset = charsetPattern.search(ct)
+					if charset!= None:
+						enc = charset.groups()[0]
+						try:
+							newcontents = unicode(self.contents, enc)
+							self.contents = newcontents
+						except LookupError: # can't find the relevant encoding, assume all ok without...
+							pass
+
 		info = {}
 		status = 0
-		hdrs = self.header.splitlines()
 
 		if hdrs != []:
 			last_ok = 0

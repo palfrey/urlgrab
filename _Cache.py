@@ -10,6 +10,7 @@ from _URLTimeoutCommon import URLTimeoutError, URLObject
 from stat import ST_MTIME
 import copy
 from zlib import compress, decompress
+import codecs
 
 try:
 	from google.appengine.api import memcache
@@ -171,9 +172,12 @@ class Cache:
 			obj = self.get(url, ref = ref)
 		except URLTimeoutError:
 			return False
-		file(fname, "wb").write(obj.read())
-		self.delete(obj)
-		return True
+		data = obj.read()
+		try:
+		    codecs.open(fname, encoding="utf-8", mode="wb").write(data)
+		    return True
+		except UnicodeDecodeError:
+		    print "decode fail"
 
 if __name__ == "__main__":
 	c = Cache(debug=True)

@@ -36,6 +36,9 @@ class URLTimeout:
 	def getTimeout(self):
 		return self.__ut.getTimeout()
 
+	def __repr__(self):
+	    return str(self.__ut)
+
 if __name__ == "__main__":
 	obj = URLTimeout(debug=True).get("http://www.google.com")
 	print obj

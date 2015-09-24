@@ -71,9 +71,10 @@ class URLTimeoutCurl(URLGetter):
 		c.close()
 		
 		if self.contents=="" and self.header == "":
-			raise URLTimeoutError, ("Timed out!",url)
+			raise URLTimeoutError, ("Timed out!",url)		   
 		
 		hdrs = self.header.splitlines()
+		converted = False
 		if len(hdrs)>1:
 			info = self.gen_headers(hdrs[1:])
 			if "Content-Type" in info:
@@ -83,11 +84,17 @@ class URLTimeoutCurl(URLGetter):
 					if charset!= None:
 						enc = charset.groups()[0]
 						try:
+							converted = True
 							newcontents = unicode(self.contents, enc)
 							self.contents = newcontents
 						except LookupError: # can't find the relevant encoding, assume all ok without...
-							pass
-
+							raise
+		if converted == False:
+		    try:
+			newcontents = unicode(self.contents, "utf-8")
+			self.contents = newcontents
+		    except UnicodeDecodeError:
+			pass
 		info = {}
 		status = 0
 
@@ -114,5 +121,5 @@ class URLTimeoutCurl(URLGetter):
 			if status[0] !=200:
 				raise URLTimeoutError,(str(status[0])+" "+status[1],url, status[0])
 		
-			return URLObject(origurl,None,self.contents,info,data)
+			return URLObject(origurl,None, self.contents,info,data)
 		raise URLTimeoutError,("No Headers!",url)

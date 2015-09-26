@@ -178,6 +178,8 @@ class Cache:
 		    return True
 		except UnicodeDecodeError:
 		    print "decode fail"
+		    open(fname, mode="wb").write(data)
+		    return True
 
 if __name__ == "__main__":
 	c = Cache(debug=True)

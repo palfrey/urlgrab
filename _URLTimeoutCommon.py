@@ -223,10 +223,16 @@ class URLGetter:
 				else:
 					print "info",info
 					raise URLTimeoutError,("301/302/303, but no location!",url,status)
+				revised = urljoin(url,newuri)
+				if revised == kwargs['url']:
+					print "status", status
+					print "kwargs", kwargs
+					raise Exception, "matched at %s"%revised
+				print "revised", revised, kwargs['url']
 				del kwargs['url']
 				del kwargs['self']
-				return self.get(urljoin(url,newuri),**kwargs)
-					
+				return self.get(revised, **kwargs)
+
 			except:
 				print "info",info
 				raise

@@ -4,7 +4,7 @@
 #
 # URLTimeoutCommon class
 # common stuff for the other URLTimeout* modules
-#	
+#
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 from sys import version_info
@@ -59,7 +59,7 @@ class URLHeaders:
 		if debug:
 			print self.headers
 		self.dict = self.headers
-	
+
 	def getmime(self):
 		ct = ""
 		if self.headers.has_key("Content-Type"):
@@ -84,16 +84,16 @@ class URLHeaders:
 			mime[1] = mime[1].strip()
 		if mime[1][-1]=='\r' or mime[1][-1]=='\n':
 			raise Exception
-		
+
 		mime = mime[:2]
 		return mime
-	
+
 	def get(self,name,alternate=None):
 		if self.headers.has_key(name):
 			return name
 		else:
 			return alternate
-	
+
 	def cookies(self):
 		if not self.headers.has_key("Set-Cookie"):
 			raise Exception, "No Set-Cookie header"
@@ -102,13 +102,13 @@ class URLHeaders:
 		else:
 			hdrs = [self.headers["Set-Cookie"]]
 		return dict([x.split(";")[0].split("=",1) for x in hdrs])
-	
+
 	def getheader(self,name):
 		return self.get(name,None)
-	
+
 	def getmaintype(self):
 		return self.getmime()[0]
-		
+
 	def getsubtype(self):
 		return self.getmime()[1]
 
@@ -127,7 +127,7 @@ class URLObject:
 		self.headers = URLHeaders(headers)
 		self.location = 0
 		self.postData = postData
-		
+
 		if data!=None and headers!={}:
 			try:
 				mime = self.getmime()
@@ -138,17 +138,17 @@ class URLObject:
 					if self.data[0:len(x)] == x:
 						self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
 						print "recoded",url
-						break			
-	
+						break
+
 	def geturl(self):
 		return self.url
-	
+
 	def info(self):
 		return self.headers
-	
+
 	def readall(self):
 		return self.data
-	
+
 	def read(self, length=-1):
 		if length < 0:
 			ret = self.data[self.location:len(self.data)]
@@ -162,7 +162,7 @@ class URLObject:
 			return ret
 		else:
 			return ""
-	
+
 	def tell(self):
 		return self.location
 
@@ -181,7 +181,7 @@ class URLObject:
 
 	def close(self):
 		pass
-	
+
 	def getmime(self):
 		return self.headers.getmime()
 
@@ -190,16 +190,16 @@ class URLObject:
 
 	@staticmethod
 	def md5(url,ref,data):
-		return hexdigest_md5(url.decode("ascii","ignore")+str(ref)+str(data))
+		return hexdigest_md5(url.encode("ascii","ignore")+str(ref)+str(data))
 
 class URLGetter:
 	def __init__(self,debug = False):
 		self.timeout = 40
 		self.debug = debug
-		
+
 	def setTimeout(self, val):
 		self.timeout = val
-	
+
 	def getTimeout(self):
 		return self.timeout
 
@@ -330,4 +330,3 @@ def handleurl(url):
 		return None
 	else:
 		raise Exception, mykind
-	

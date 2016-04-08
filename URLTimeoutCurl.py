@@ -3,8 +3,8 @@
 # http://tevp.net
 #
 # URLTimeoutCurl class
-# Grabs URLs, but with a timeout to avoid locking on crapped-up sites.	
-#	
+# Grabs URLs, but with a timeout to avoid locking on crapped-up sites.
+#
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 import pycurl,re
@@ -18,7 +18,7 @@ class URLTimeoutCurl(URLGetter):
 		self.contents += buf
 		if hasattr(self, "write_callback"):
 			self.write_callback(len(self.contents))
-	
+
 	def head_callback(self, buf):
 		self.header = self.header + buf
 
@@ -34,7 +34,7 @@ class URLTimeoutCurl(URLGetter):
 		resp = handleurl(url)
 		if resp!=None:
 			return URLObject(url,None,resp.body,resp.msg.headers,data)
-	
+
 		self.contents = ""
 		self.header = ""
 		origurl = url
@@ -45,7 +45,7 @@ class URLTimeoutCurl(URLGetter):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))
 		if type(url) == unicode:
-			c.setopt(c.URL, url.encode("ascii"))
+			c.setopt(c.URL, url.encode("utf-8"))
 		else:
 			c.setopt(c.URL, url)
 		c.setopt(c.WRITEFUNCTION, self.body_callback)
@@ -57,9 +57,9 @@ class URLTimeoutCurl(URLGetter):
 			#c.setopt(c.POST,1)
 			c.setopt(c.POSTFIELDS,enc)
 			print "enc",enc
-			
+
 		c.setopt(c.LOW_SPEED_LIMIT, 15) # 15 bytes/sec = dead. Random value.
-		c.setopt(c.LOW_SPEED_TIME, self.getTimeout()) # i.e. dead (< 15 bytes/sec) 
+		c.setopt(c.LOW_SPEED_TIME, self.getTimeout()) # i.e. dead (< 15 bytes/sec)
 		if ref!=None:
 			c.setopt(c.REFERER, str(ref))
 
@@ -67,12 +67,12 @@ class URLTimeoutCurl(URLGetter):
 			c.perform()
 		except pycurl.error, msg:
 			raise URLTimeoutError,(msg[1],url)
-			
+
 		c.close()
-		
+
 		if self.contents=="" and self.header == "":
-			raise URLTimeoutError, ("Timed out!",url)		   
-		
+			raise URLTimeoutError, ("Timed out!",url)
+
 		hdrs = self.header.splitlines()
 		converted = False
 		if len(hdrs)>1:
@@ -110,16 +110,16 @@ class URLTimeoutCurl(URLGetter):
 			status[1] = ret[1]
 
 			info = self.gen_headers(hdrs[1:])
-			
+
 			ret = self.check_move(status[0], locals())
 			if ret!=None:
 				return ret
-			
+
 			if status[0] == 304:
 				raise URLOldDataError
-			
+
 			if status[0] !=200:
 				raise URLTimeoutError,(str(status[0])+" "+status[1],url, status[0])
-		
+
 			return URLObject(origurl,None, self.contents,info,data)
 		raise URLTimeoutError,("No Headers!",url)

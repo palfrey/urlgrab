@@ -38,7 +38,7 @@ class Cache:
 			get = memcache.get(hash)
 			if get != None:
 				self.store[hash] = get
-				self.store[hash].data = decompress(self.store[hash].data) 
+				self.store[hash].data = decompress(self.store[hash].data)
 			return
 		f = hash+".cache"
 		if f in os.listdir(self.cache):
@@ -54,11 +54,11 @@ class Cache:
 					print "loaded",old.url,old.ref,old.hash()
 				if(old.hash()!=f[:-len(".cache")]):
 					raise Exception,"md5 problem!"
-			except (EOFError,ValueError,UnpicklingError,ImportError): # ignore and discard				
+			except (EOFError,ValueError,UnpicklingError,ImportError): # ignore and discard
 				if self.debug:
 					print "discarded",f,sys.exc_info()
 				os.unlink(os.path.join(self.cache,f))
-	
+
 	def auth(self,user,password):
 		self.grabber.auth(user,password)
 
@@ -70,7 +70,7 @@ class Cache:
 			if self.debug:
 				print "dumping",url,ref,hash
 			if memcache!=None:
-				self.store[hash].data = compress(self.store[hash].data) 
+				self.store[hash].data = compress(self.store[hash].data)
 				memcache.set(hash, self.store[hash])
 			else:
 				f = file(os.path.join(self.cache,hash+".cache"),'wb')
@@ -78,10 +78,10 @@ class Cache:
 				f.close()
 		else:
 			raise Exception, "We never got that URL! ("+url+")"
-	
+
 	user_agent = None
-	
-	def get(self,url,ref=None, max_age=3600, data = None,headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
+
+	def get(self, url, ref=None, max_age=3600, data = None, headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
 		if timeout == None:
 			timeout = self.default_timeout
 		if self.debug:
@@ -116,7 +116,7 @@ class Cache:
 					raise URLTimeoutError, (str(e),url)
 		else:
 			old = None
-	
+
 		self.grabber.setTimeout(timeout)
 
 		try:
@@ -141,7 +141,7 @@ class Cache:
 			hash = other.hash()
 			self.store[hash] = other
 			other.checked = other.used = now
-			
+
 		if len(old.headers.headers)>0:
 			self._dump(old.url,old.ref,old.postData)
 			if old.url!=url:
@@ -149,7 +149,7 @@ class Cache:
 		if self.debug:
 			print "Grabbed",old.url,old.ref
 		return old
-	
+
 	def delete(self, obj): # removes from cache
 		hash = obj.hash()
 
@@ -174,12 +174,12 @@ class Cache:
 			return False
 		data = obj.read()
 		try:
-		    codecs.open(fname, encoding="utf-8", mode="wb").write(data)
-		    return True
+			codecs.open(fname, encoding="utf-8", mode="wb").write(data)
+			return True
 		except UnicodeDecodeError:
-		    print "decode fail"
-		    open(fname, mode="wb").write(data)
-		    return True
+			print "decode fail"
+			open(fname, mode="wb").write(data)
+			return True
 
 if __name__ == "__main__":
 	c = Cache(debug=True)

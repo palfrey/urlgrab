@@ -154,7 +154,7 @@ class URLObject:
 			ret = self.data[self.location:len(self.data)]
 			self.location = len(self.data)
 			return ret
-		elif self.location<len(self.data):
+		elif self.data != None and self.location<len(self.data):
 			ret = self.data[self.location:self.location+length]
 			self.location += length
 			if self.location > len(self.data):

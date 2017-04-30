@@ -150,18 +150,18 @@ class URLObject:
 		return self.data
 
 	def read(self, length=-1):
-		if length < 0:
-			ret = self.data[self.location:len(self.data)]
-			self.location = len(self.data)
-			return ret
-		elif self.data != None and self.location<len(self.data):
-			ret = self.data[self.location:self.location+length]
-			self.location += length
-			if self.location > len(self.data):
+		if self.data != None:
+			if length < 0:
+				ret = self.data[self.location:len(self.data)]
 				self.location = len(self.data)
-			return ret
-		else:
-			return ""
+				return ret
+			elif self.location<len(self.data):
+				ret = self.data[self.location:self.location+length]
+				self.location += length
+				if self.location > len(self.data):
+					self.location = len(self.data)
+				return ret
+		return ""
 
 	def tell(self):
 		return self.location

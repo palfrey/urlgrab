@@ -41,6 +41,8 @@ except ImportError: # python < 2.5
 	import md5
 	hashlib = None
 
+import warnings
+
 def hexdigest_md5(data):
 	if hashlib:
 		return hashlib.md5(data).hexdigest()
@@ -135,10 +137,12 @@ class URLObject:
 				return
 			if mime[0] !="image":
 				for x in codec.keys():
-					if self.data[0:len(x)] == x:
-						self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
-						print "recoded",url
-						break
+					with warnings.catch_warnings():
+						warnings.simplefilter("ignore", UnicodeWarning) # If they're not of the same type, not a match
+						if self.data[0:len(x)] == x:
+							self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
+							print "recoded",url
+							break
 
 	def geturl(self):
 		return self.url

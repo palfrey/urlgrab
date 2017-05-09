@@ -79,7 +79,7 @@ class URLTimeoutCurl(URLGetter):
 			info = self.gen_headers(hdrs[1:])
 			if "Content-Type" in info:
 				ct = info["Content-Type"]
-				if ct.find("charset")!=-1:
+				if ct.find("image/") == -1 and ct.find("charset")!=-1:
 					charset = charsetPattern.search(ct)
 					if charset!= None:
 						enc = charset.groups()[0]

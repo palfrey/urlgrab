@@ -81,6 +81,11 @@ class Cache:
 
 	user_agent = None
 
+	def has_item(self, url, ref=None, data = None):
+		self.__load__(url,ref)
+		hash = URLObject.md5(url,ref,data)
+		return self.store.has_key(hash)
+
 	def get(self, url, ref=None, max_age=3600, data = None, headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
 		if timeout == None:
 			timeout = self.default_timeout
@@ -94,9 +99,13 @@ class Cache:
 		if self.store.has_key(hash):
 			old = self.store[hash]
 			if self.debug:
-				print "time diff",time.time()-old.checked
+				print "time diff",now-old.checked, max_age
 			if len(old.headers.headers)>0: # non-local file
+				if self.debug:
+					print "non-local"
 				if max_age==-1 or now-old.checked < max_age:
+					if self.debug:
+						print "not that old"
 					old.seek(0)
 					old.used = now
 					self._dump(old.url,old.ref,old.postData)

@@ -81,10 +81,16 @@ class Cache:
 
 	user_agent = None
 
-	def has_item(self, url, ref=None, data = None):
+	def has_item(self, url, ref=None, data = None, max_age=3600):
 		self.__load__(url,ref)
 		hash = URLObject.md5(url,ref,data)
-		return self.store.has_key(hash)
+		if self.store.has_key(hash):
+		    old = self.store[hash]
+		    if time.time()-old.checked>max_age:
+			return False
+		    else:
+			return True
+		return False
 
 	def get(self, url, ref=None, max_age=3600, data = None, headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
 		if timeout == None:

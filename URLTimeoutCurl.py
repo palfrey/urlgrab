@@ -8,8 +8,8 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 import pycurl,re
-from _URLTimeoutCommon import *
-from urllib import urlencode
+from ._URLTimeoutCommon import *
+from urllib.parse import urlencode
 
 charsetPattern = re.compile("charset=(\S+)")
 
@@ -20,22 +20,18 @@ class URLTimeoutCurl(URLGetter):
 			self.write_callback(len(self.contents))
 
 	def head_callback(self, buf):
-		self.header = self.header + buf
+		self.header = self.header + buf.decode('utf-8')
 
 	def auth(self,user,password):
 		self.user = user
 		self.password = password
 
-	def get(self,url,**kwargs):
-		kwargs = apply_vars(kwargs, self.get_args)
-		exec('pass') # apply locals. Copy+paste magic...
-		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
-
+	def get(self,url, headers={}, ref=None, data=None, ignore_move=False, proxy=None):
 		resp = handleurl(url)
 		if resp!=None:
 			return URLObject(url,None,resp.body,resp.msg.headers,data)
 
-		self.contents = ""
+		self.contents = b""
 		self.header = ""
 		origurl = url
 		c = pycurl.Curl()
@@ -44,19 +40,19 @@ class URLTimeoutCurl(URLGetter):
 		if hasattr(self, "user"):
 			c.setopt(c.HTTPAUTH,c.HTTPAUTH_BASIC)
 			c.setopt(c.USERPWD,"%s:%s"%(self.user,self.password))
-		if type(url) == unicode:
+		if type(url) == str:
 			c.setopt(c.URL, url.encode("utf-8"))
 		else:
 			c.setopt(c.URL, url)
 		c.setopt(c.WRITEFUNCTION, self.body_callback)
 		c.setopt(c.HEADERFUNCTION, self.head_callback)
-		c.setopt(c.HTTPHEADER,[x+": "+headers[x] for x in headers.keys()])
+		c.setopt(c.HTTPHEADER,[x+": "+headers[x] for x in list(headers.keys())])
 		c.setopt(pycurl.ENCODING, '')
 		if data!=None:
 			enc = urlencode(data)
 			#c.setopt(c.POST,1)
 			c.setopt(c.POSTFIELDS,enc)
-			print "enc",enc
+			print("enc",enc)
 
 		c.setopt(c.LOW_SPEED_LIMIT, 15) # 15 bytes/sec = dead. Random value.
 		c.setopt(c.LOW_SPEED_TIME, self.getTimeout()) # i.e. dead (< 15 bytes/sec)
@@ -65,13 +61,13 @@ class URLTimeoutCurl(URLGetter):
 
 		try:
 			c.perform()
-		except pycurl.error, msg:
-			raise URLTimeoutError,(msg[1],url)
+		except pycurl.error as msg:
+			raise URLTimeoutError(msg.args[1],url)
 
 		c.close()
 
 		if self.contents=="" and self.header == "":
-			raise URLTimeoutError, ("Timed out!",url)
+			raise URLTimeoutError("Timed out!",url)
 
 		hdrs = self.header.splitlines()
 		converted = False
@@ -85,16 +81,16 @@ class URLTimeoutCurl(URLGetter):
 						enc = charset.groups()[0]
 						try:
 							converted = True
-							newcontents = unicode(self.contents, enc)
+							newcontents = str(self.contents, enc)
 							self.contents = newcontents
 						except LookupError: # can't find the relevant encoding, assume all ok without...
 							raise
 		if converted == False:
-		    try:
-			newcontents = unicode(self.contents, "utf-8")
-			self.contents = newcontents
-		    except UnicodeDecodeError:
-			pass
+			try:
+				newcontents = str(self.contents, "utf-8")
+				self.contents = newcontents
+			except UnicodeDecodeError:
+				pass
 		info = {}
 		status = 0
 
@@ -119,7 +115,7 @@ class URLTimeoutCurl(URLGetter):
 				raise URLOldDataError
 
 			if status[0] !=200:
-				raise URLTimeoutError,(str(status[0])+" "+status[1],url, status[0])
+				raise URLTimeoutError(str(status[0])+" "+status[1],url, status[0])
 
 			return URLObject(origurl,None, self.contents,info,data)
-		raise URLTimeoutError,("No Headers!",url)
+		raise URLTimeoutError("No Headers!",url)

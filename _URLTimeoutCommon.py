@@ -8,20 +8,19 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 from sys import version_info
-from urlparse import urljoin
-from _local_dict import apply_vars
+from urllib.parse import urljoin
+from ._local_dict import apply_vars
 try:
 	from os import SEEK_SET, SEEK_CUR, SEEK_END
 except ImportError: # python <2.5
 	SEEK_SET = 0
 	SEEK_CUR = 1
 	SEEK_END = 2
-from types import ListType
-import __builtin__
-from _Enum import Enum
+import builtins
+from ._Enum import Enum
 from os.path import dirname,basename
-import urlparse
-from urllib2 import URLError
+import urllib.parse
+from urllib.error import URLError
 try:
 	from xdg import Mime
 except ImportError:
@@ -45,7 +44,7 @@ import warnings
 
 def hexdigest_md5(data):
 	if hashlib:
-		return hashlib.md5(data).hexdigest()
+		return hashlib.md5(data.encode('utf-8')).hexdigest()
 	else:
 		return md5.new(data).hexdigest()
 
@@ -59,18 +58,18 @@ class URLHeaders:
 	def __init__(self,headers, debug = False):
 		self.headers = headers
 		if debug:
-			print self.headers
+			print(self.headers)
 		self.dict = self.headers
 
 	def getmime(self):
 		ct = ""
-		if self.headers.has_key("Content-Type"):
+		if "Content-Type" in self.headers:
 			ct = self.headers["Content-Type"]
-		elif self.headers.has_key("Content-type"):
+		elif "Content-type" in self.headers:
 			ct = self.headers["Content-type"]
 		else:
-			raise KeyError, "No content type header!"
-		if type(ct) == ListType:
+			raise KeyError("No content type header!")
+		if type(ct) == list:
 			good = None
 			for x in ct:
 				if good:
@@ -91,15 +90,15 @@ class URLHeaders:
 		return mime
 
 	def get(self,name,alternate=None):
-		if self.headers.has_key(name):
+		if name in self.headers:
 			return name
 		else:
 			return alternate
 
 	def cookies(self):
-		if not self.headers.has_key("Set-Cookie"):
-			raise Exception, "No Set-Cookie header"
-		if type(self.headers["Set-Cookie"]) == ListType:
+		if "Set-Cookie" not in self.headers:
+			raise Exception("No Set-Cookie header")
+		if type(self.headers["Set-Cookie"]) == list:
 			hdrs = self.headers["Set-Cookie"]
 		else:
 			hdrs = [self.headers["Set-Cookie"]]
@@ -115,7 +114,7 @@ class URLHeaders:
 		return self.getmime()[1]
 
 import codecs
-if codecs.__dict__.has_key("BOM_UTF16_LE"):
+if "BOM_UTF16_LE" in codecs.__dict__:
 	codec = {codecs.BOM_UTF16_LE:codecs.lookup('utf_16_le'),codecs.BOM_UTF16_BE:codecs.lookup('utf_16_be')}
 else:
 	codec = {}
@@ -136,12 +135,12 @@ class URLObject:
 			except KeyError:
 				return
 			if mime[0] !="image":
-				for x in codec.keys():
+				for x in list(codec.keys()):
 					with warnings.catch_warnings():
 						warnings.simplefilter("ignore", UnicodeWarning) # If they're not of the same type, not a match
 						if self.data[0:len(x)] == x:
 							self.data = ascii(codec[x][1](self.data[len(x):])[0])[0]
-							print "recoded",url
+							print("recoded",url)
 							break
 
 	def geturl(self):
@@ -194,7 +193,7 @@ class URLObject:
 
 	@staticmethod
 	def md5(url,ref,data):
-		return hexdigest_md5(url.encode("ascii","ignore")+str(ref)+str(data))
+		return hexdigest_md5(url+str(ref)+str(data))
 
 class URLGetter:
 	def __init__(self,debug = False):
@@ -208,37 +207,32 @@ class URLGetter:
 		return self.timeout
 
 	def auth(self,user,password):
-		raise Exception, "%s has not defined auth"%self.__class__
+		raise Exception("%s has not defined auth"%self.__class__)
 
 	def get(self,*args):
-		raise Exception, "%s has not defined get"%self.__class__
+		raise Exception("%s has not defined get"%self.__class__)
 
 	get_args = ('headers','proxy','ref','ignore_move')
 
-	def check_move(self, status, kwargs):
-		apply_vars(kwargs)
-		exec('pass') # apply locals. Copy+paste magic...
+	def check_move(self, status, ignore_move=False, url="", ref=None, headers={}, proxy=None):
 		if not ignore_move and (status in (301,302,303)): # moved
 			try:
-				if info.has_key("location"):
+				if "location" in info:
 					newuri = info["location"]
-				elif info.has_key("Location"):
+				elif "Location" in info:
 					newuri = info["Location"]
 				else:
-					print "info",info
-					raise URLTimeoutError,("301/302/303, but no location!",url,status)
+					print("info",info)
+					raise URLTimeoutError("301/302/303, but no location!",url,status)
 				revised = urljoin(url,newuri)
-				if revised == kwargs['url']:
-					print "status", status
-					print "kwargs", kwargs
-					raise Exception, "matched at %s"%revised
-				print "revised", revised, kwargs['url']
-				del kwargs['url']
-				del kwargs['self']
-				return self.get(revised, **kwargs)
+				if revised == url:
+					print("status", status)
+					raise Exception("matched at %s"%revised)
+				print("revised", revised, url)
+				return self.get(revised, ref=ref, headers=headers, proxy=proxy)
 
 			except:
-				print "info",info
+				print("info",info)
 				raise
 		return None
 
@@ -250,15 +244,15 @@ class URLGetter:
 			try:
 				(type,data) = hdr.split(':',1)
 			except:
-				print "header was %s"%hdr
+				print("header was %s" % hdr)
 				raise
 			temp = data[1:]
 			while (len(temp)>0 and (temp[-1]=='\r' or temp[-1]=='\n')):
 				temp =temp[:-1]
 			if len(temp)==0:
 				continue
-			if info.has_key(type):
-				if __builtin__.type(info[type])!=ListType:
+			if type in info:
+				if builtins.type(info[type]) != list:
 					old = info[type]
 					info[type] =[old]
 				info[type].append(temp)
@@ -269,12 +263,12 @@ class URLGetter:
 class URLPython:
 	def __init__(self,url,debug=False):
 		if debug:
-			print "made urlpython"
+			print("made urlpython")
 		self._url = url
 		cmd = "cd %s;python %s"%(dirname(url),basename(url))
-		print "cmd",cmd
+		print("cmd",cmd)
 		if popen == None:
-			raise Exception, "Don't have popen!"
+			raise Exception("Don't have popen!")
 		data = popen(cmd,"r").readlines()
 		self.msg = URLHeaders({})
 		self.status = 200
@@ -297,12 +291,12 @@ def get_good_mime(filename):
 class URLFile:
 	def __init__(self,url,debug=False):
 		if debug:
-			print "made asyncfile"
+			print("made asyncfile")
 		self._url = url
 		try:
 			self.body = file(self._url).read()
-		except IOError,e:
-			raise URLTimeoutError, (str(e),url)
+		except IOError as e:
+			raise URLTimeoutError(str(e),url)
 		self.msg = URLHeaders({})
 		self.msg.headers["Content-type"] = get_good_mime(url)
 		self.status = 200
@@ -315,15 +309,15 @@ class Kind(Enum):
 
 def handleurl(url):
 	if url == "":
-		raise URLError, "Need a URL!"
-	bits = urlparse.urlsplit(url)
+		raise URLError("Need a URL!")
+	bits = urllib.parse.urlsplit(url)
 	rest ="".join(bits[1:])
 	while len(rest)>0 and rest[0]=="/":
 		rest = rest[1:]
 	try:
 		mykind = Kind.valid(bits[0])
 	except ValueError:
-		raise URLError, "'%s' isn't a valid URL!"%url
+		raise URLError("'%s' isn't a valid URL!"%url)
 
 	#print "kind",url,mykind,rest
 	if mykind == Kind.file:
@@ -333,4 +327,4 @@ def handleurl(url):
 	elif mykind == Kind.http or mykind == Kind.https:
 		return None
 	else:
-		raise Exception, mykind
+		raise Exception(mykind)

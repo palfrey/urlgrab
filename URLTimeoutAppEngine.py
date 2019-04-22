@@ -6,16 +6,16 @@
 #	
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
-from urllib import urlencode
+from urllib.parse import urlencode
 
-from _URLTimeoutCommon import *
-from _local_dict import apply_vars
+from ._URLTimeoutCommon import *
+from ._local_dict import apply_vars
 
 from google.appengine.api.urlfetch import fetch, DownloadError
 
 class URLTimeoutAppEngine(URLGetter):
 	def auth(self,user,password):
-		raise Exception, "URLTimeoutAppEngine doesn't do basic auth yet!"
+		raise Exception("URLTimeoutAppEngine doesn't do basic auth yet!")
 
 	def get(self,url,**kwargs):
 		kwargs = apply_vars(kwargs, self.get_args)
@@ -23,7 +23,7 @@ class URLTimeoutAppEngine(URLGetter):
 		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
 
 		if proxy!=None:
-			raise Exception, "URLTimeoutAppEngine can't handle proxies right now!"
+			raise Exception("URLTimeoutAppEngine can't handle proxies right now!")
 
 		if data!=None:
 			data = urlencode(data)
@@ -31,8 +31,8 @@ class URLTimeoutAppEngine(URLGetter):
 			headers["Referer"] = ref
 		try:
 			grab = fetch(url,payload=data,headers=headers,deadline=self.getTimeout())
-		except DownloadError,e:
-			raise URLTimeoutError,(e.message,url)
+		except DownloadError as e:
+			raise URLTimeoutError(e.message,url)
 
 		ret = self.check_move(grab.status_code, locals())
 		if ret!=None:
@@ -42,7 +42,7 @@ class URLTimeoutAppEngine(URLGetter):
 			raise URLOldDataError
 		
 		if grab.status_code !=200:
-			raise URLTimeoutError,(str(grab.status_code)+" "+grab.content,url, grab.status_code)
+			raise URLTimeoutError(str(grab.status_code)+" "+grab.content,url, grab.status_code)
 		
 		return URLObject(url,ref,grab.content,grab.headers)
 

@@ -5,7 +5,6 @@
 """Enumeration metaclass.
 """
 
-from types import IntType
 from optparse import OptionParser,OptionValueError,Option
 from copy import copy
 
@@ -39,8 +38,8 @@ class EnumMetaClass(type):
 
 		"""
 		newDict = {}
-		for key, value in dict.items():
-			if type(value) == IntType:
+		for key, value in list(dict.items()):
+			if type(value) == int:
 				value = EnumInstance(name, key, value)
 			newDict[key] = value
 
@@ -50,7 +49,7 @@ class EnumMetaClass(type):
 		if hasattr(self,name):
 			return getattr(self,name)
 		else:
-			raise ValueError, "Specified name not in enum"
+			raise ValueError("Specified name not in enum")
 
 	def getWithValue(self,value):
 		try:
@@ -66,7 +65,7 @@ class EnumMetaClass(type):
 				except AttributeError:
 					continue
 
-		raise AttributeError, value
+		raise AttributeError(value)
 	
 	def __repr__(self):
 		s = self.__name__
@@ -106,9 +105,9 @@ class EnumInstance:
 		self.__value = value
 
 	def __repr__(self):
-		return "EnumInstance(%s, %s, %s)" % (`self.__classname`,
-											 `self.__enumname`,
-											 `self.__value`)
+		return "EnumInstance(%s, %s, %s)" % (repr(self.__classname),
+											 repr(self.__enumname),
+											 repr(self.__value))
 
 	def __str__(self):
 		return "%s.%s" % (self.__classname, self.__enumname)
@@ -133,14 +132,14 @@ class EnumInstance:
 
 # Create the base class for enumerations.
 # It is an empty enumeration.
-class Enum:
-	__metaclass__ = EnumMetaClass
+class Enum(metaclass=EnumMetaClass):
+	pass
 
 def check_enum(option, opt, value):
 	try:
 		return option.enum.valid(value)
 	except ValueError:
-		raise OptionValueError,"'%s' is an invalid type for %s (valid types are %s)"%(value,option, ", ".join(option.enum.__members__))
+		raise OptionValueError("'%s' is an invalid type for %s (valid types are %s)"%(value,option, ", ".join(option.enum.__members__)))
 
 class EnumOption (Option):
 	TYPES = Option.TYPES + ("enum",)
@@ -151,9 +150,9 @@ class EnumOption (Option):
 
 class SpecificParser(OptionParser):
 	def __init__(self,*args,**kwargs):
-		if kwargs.has_key('option_class'):
+		if 'option_class' in kwargs:
 			if not issubclass(kwargs['option_class'],self._option):
-				raise Exception, "option_class must be a subclass of %s"%self._option.__name__
+				raise Exception("option_class must be a subclass of %s"%self._option.__name__)
 		else:
 			kwargs['option_class'] = self._option
 		OptionParser.__init__(self,*args,**kwargs)
@@ -162,7 +161,7 @@ class EnumOptionParser(SpecificParser):
 	_option = EnumOption
 
 	def add_option(self, *args, **kwargs):
-		if kwargs.has_key('enum') and not kwargs.has_key('help'):
+		if 'enum' in kwargs and 'help' not in kwargs:
 			kwargs['help'] = "%s ("%kwargs['enum'].name()+"|".join(kwargs['enum'].__members__)+")"
 		OptionParser.add_option(self,*args,**kwargs)
 
@@ -173,13 +172,13 @@ def _test():
 		green = 2
 		blue = 3
 
-	print Color.red
-	print dir(Color)
+	print(Color.red)
+	print(dir(Color))
 
-	print Color.red == Color.red
-	print Color.red == Color.blue
-	print Color.red == 1
-	print Color.red == 2
+	print(Color.red == Color.red)
+	print(Color.red == Color.blue)
+	print(Color.red == 1)
+	print(Color.red == 2)
 
 	class ExtendedColor(Color):
 		white = 0
@@ -188,10 +187,10 @@ def _test():
 		purple = 6
 		black = 7
 
-	print ExtendedColor.orange
-	print ExtendedColor.red
+	print(ExtendedColor.orange)
+	print(ExtendedColor.red)
 
-	print Color.red == ExtendedColor.red
+	print(Color.red == ExtendedColor.red)
 
 	class OtherColor(Enum):
 		white = 4
@@ -200,13 +199,13 @@ def _test():
 	class MergedColor(Color, OtherColor):
 		pass
 
-	print MergedColor.red
-	print MergedColor.white
+	print(MergedColor.red)
+	print(MergedColor.white)
 
-	print Color
-	print ExtendedColor
-	print OtherColor
-	print MergedColor
+	print(Color)
+	print(ExtendedColor)
+	print(OtherColor)
+	print(MergedColor)
 
 if __name__ == '__main__':
 	_test()

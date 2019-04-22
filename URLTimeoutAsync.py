@@ -7,14 +7,14 @@
 #	
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
-import urlparse,urllib2,socket
+import urllib.parse,urllib.request,urllib.error,urllib.parse,socket
 import asyncore
-import asynchttp
-from urllib import urlencode
+from . import asynchttp
+from urllib.parse import urlencode
 
-from alarms import AsyncAlarmMixin
-from _URLTimeoutCommon import *
-from _local_dict import apply_vars
+from .alarms import AsyncAlarmMixin
+from ._URLTimeoutCommon import *
+from ._local_dict import apply_vars
 from socket import socket
 
 debug = True
@@ -29,10 +29,10 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			self.response = resp
 			self.handle_response()
 
-		bits = urlparse.urlsplit(url)
+		bits = urllib.parse.urlsplit(url)
 		self.debug = debug
 		if self.debug:
-			print "bits",bits
+			print("bits",bits)
 		if bits[1].find(':')==-1:
 			asynchttp.AsyncHTTPConnection.__init__(self, bits[1], 80)
 		else:
@@ -45,7 +45,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 		if len(url)==0:
 			url="/"
 		if self.debug:
-			print "url",url
+			print("url",url)
 		self._url = url
 		self._referer = referer
 		self._closed = False
@@ -57,7 +57,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			self._closed = True
 			self.die_now = True
 		else:
-			print "we already killed this (response)"		
+			print("we already killed this (response)")		
 
 	def handle_connect(self):
 		#print "connect!"
@@ -69,7 +69,7 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 		if self._referer!=None:
 			self.putheader("Referer",self._referer)
 		if self._headers:
-			for k in self._headers.keys():
+			for k in list(self._headers.keys()):
 				self.putheader(k,self._headers[k])
 		if self.data:
 			self.putheader('Content-Length', str(len(self.data)))
@@ -88,11 +88,11 @@ class asyncgrab(AsyncAlarmMixin,asynchttp.AsyncHTTPConnection):
 			self._closed = True
 			self.die_now = True
 		else:
-			print "we already killed this (alarm)"		
+			print("we already killed this (alarm)")		
 
 class URLTimeoutAsync(URLGetter):
 	def auth(self,user,password):
-		raise Exception, "URLTimeoutAsync doesn't do basic auth yet!"
+		raise Exception("URLTimeoutAsync doesn't do basic auth yet!")
 
 	def get(self,url,**kwargs):
 		kwargs = apply_vars(kwargs, self.get_args)
@@ -100,7 +100,7 @@ class URLTimeoutAsync(URLGetter):
 		data = kwargs['data'] # doesn't seem to work via other mechanism for some bizarre reason
 
 		if proxy!=None:
-			raise Exception, "URLTimeoutAsync can't handle proxies right now!"
+			raise Exception("URLTimeoutAsync can't handle proxies right now!")
 
 		if data!=None:
 			encode_data = urlencode(data)
@@ -111,14 +111,14 @@ class URLTimeoutAsync(URLGetter):
 			grab.set_debuglevel(1)
 		try:
 			grab.connect()
-		except socket.error,err:
-			raise URLTimeoutError,(err[1],url)
+		except socket.error as err:
+			raise URLTimeoutError(err[1],url)
 
 		grab.loop(timeout=self.getTimeout())
 
 		if not hasattr(grab, "response") or grab.response.body==None:
-			print grab.__dict__
-			raise URLTimeoutError, ("Timed out!",url)
+			print(grab.__dict__)
+			raise URLTimeoutError("Timed out!",url)
 		
 		info = self.gen_headers(grab.response.msg.headers)
 		ret = self.check_move(grab.response.status, locals())
@@ -129,6 +129,6 @@ class URLTimeoutAsync(URLGetter):
 			raise URLOldDataError
 		
 		if grab.response.status !=200:
-			raise URLTimeoutError,(str(grab.response.status)+" "+grab.response.reason,url,grab.response.status)
+			raise URLTimeoutError(str(grab.response.status)+" "+grab.response.reason,url,grab.response.status)
 		
 		return URLObject(url,ref,grab.response.body,info,data)

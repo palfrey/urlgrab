@@ -73,7 +73,7 @@ import asyncore
 import socket
 import time
 import string
-import cStringIO
+import io
 import mimetools
 
 HTTP_PORT = 80
@@ -97,7 +97,7 @@ class AsyncHTTPResponse:
         # we're expecting something like 'HTTP/1.1 200 OK'
         self._replyline = fp.readline()
         if self.debuglevel > 0:
-            print "reply: %s" % (self._replyline)
+            print("reply: %s" % (self._replyline))
             
         replylist = string.split(self._replyline, None, 2)
 
@@ -129,7 +129,7 @@ class AsyncHTTPResponse:
         self.msg = mimetools.Message(fp, 0)
         if self.debuglevel > 0:
             for hdr in self.msg.headers:
-                print "header: %s" %  (string.strip(hdr))
+                print("header: %s" %  (string.strip(hdr)))
 
         self.body = None
 
@@ -222,7 +222,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         self.__set_state(_STATE_CONNECTING)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         if self.debuglevel > 0:
-            print "connecting: (%s, %s)" % (self.host, self.port)
+            print("connecting: (%s, %s)" % (self.host, self.port))
         
         asyncore.dispatcher.connect(self, (self.host, self.port))
 
@@ -232,7 +232,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         And remove ourselves from the asyncore polling group
         """
         if self.debuglevel > 0:
-            print "asynchttp.close() (%s, %s)" % (self.host, self.port)
+            print("asynchttp.close() (%s, %s)" % (self.host, self.port))
             
         self.connected = 0
 
@@ -251,7 +251,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         because it conflicts with asynchat
         """
         if self.debuglevel > 0:
-            print "send_entity %s"%str
+            print("send_entity %s"%str)
             
         self._requestfp.write(str)
         
@@ -265,7 +265,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         nothing gets sent to the server until getresponse() is called.
         """
         if self.debuglevel > 0:
-            print "putrequest %s %s" % (method, url)
+            print("putrequest %s %s" % (method, url))
             
         if not self.__state is _STATE_ACTIVE:
             raise RequestNotReady(
@@ -273,7 +273,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 name=str(self)
                 )
 
-        self._requestfp = cStringIO.StringIO()
+        self._requestfp = io.StringIO()
         
         if not url:
             url = '/'
@@ -323,7 +323,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         key, it will wipe out the existing entry.
         """
         if self.debuglevel > 0:
-            print "putheader %s: %s" % (header, value)
+            print("putheader %s: %s" % (header, value))
             
         self._headerdict[header] = value
 
@@ -334,9 +334,9 @@ class AsyncHTTPConnection(asynchat.async_chat):
         stream to be sent when getresponse() is called.
         """
         if self.debuglevel > 0:
-            print "endheaders"
+            print("endheaders")
             
-        for header, value in self._headerdict.items():
+        for header, value in list(self._headerdict.items()):
             self._requestfp.write(
                 '%s: %s\r\n' % (header, value)
                 )
@@ -348,20 +348,20 @@ class AsyncHTTPConnection(asynchat.async_chat):
         Send a complete request to the server.
         """
         if self.debuglevel > 0:
-            print "request"
+            print("request")
             
         self._send_request(method, url, body, headers)
 
     def _send_request(self, method, url, body, headers):
         if self.debuglevel > 0:
-            print "_send_request"
+            print("_send_request")
             
         self.putrequest(method, url)
 
         if body:
             self.putheader('Content-Length', str(len(body)))
             
-        for hdr, value in headers.items():
+        for hdr, value in list(headers.items()):
             self.putheader(hdr, value)
             
         self.endheaders()
@@ -384,7 +384,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         # exit this state on a blank line
         self.set_terminator("\r\n\r\n")
         
-        self._responsefp = cStringIO.StringIO()
+        self._responsefp = io.StringIO()
         
     def handle_connect(self):
         """
@@ -392,7 +392,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         """
         self.__set_state(_STATE_ACTIVE)
         if self.debuglevel > 0:
-            print "connected: (%s, %s)" % (self.host, self.port)
+            print("connected: (%s, %s)" % (self.host, self.port))
             
     def handle_close(self):
         """
@@ -402,9 +402,9 @@ class AsyncHTTPConnection(asynchat.async_chat):
         connection.
         """
         if self.debuglevel > 0:
-            print "closed by server: (%s, %s) %s" % (
+            print("closed by server: (%s, %s) %s" % (
                 self.host, self.port, self.__state
-                )
+                ))
             
         # 2001-03-14 djf If the server closed the connection while we're
         # requesting body data, it  may just be trying to tell us that
@@ -427,7 +427,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
         try:
             data = self.recv (self.ac_in_buffer_size)
-        except socket.error, why:
+        except socket.error as why:
             self.handle_error()
             return
 
@@ -543,11 +543,11 @@ class AsyncHTTPConnection(asynchat.async_chat):
             )
         
         # set up for getting the body
-        self._responsefp = cStringIO.StringIO()
+        self._responsefp = io.StringIO()
 
         if transferencoding:
             if transferencoding == "chunked":
-                self._chunkfp = cStringIO.StringIO()
+                self._chunkfp = io.StringIO()
                 self.set_terminator("\r\n")
                 self.__set_state(_STATE_CHUNK_START)
                 return
@@ -611,7 +611,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 ))
             
         if self.debuglevel > 0:
-            print "chunksize = '%d" % (chunksize)
+            print("chunksize = '%d" % (chunksize))
 
         return chunksize
 
@@ -625,16 +625,16 @@ class AsyncHTTPConnection(asynchat.async_chat):
         self._chunksize = self._get_chunk_size()
         if self._chunksize == 0:
             if self.debuglevel > 0:
-                print "0 size Chunk: ending chunk processing"
+                print("0 size Chunk: ending chunk processing")
             self.response.body = self._chunkfp.getvalue()
             self._chunkfp = None
             self.set_terminator("\r\n\r\n")
-            self._responsefp = cStringIO.StringIO()
+            self._responsefp = io.StringIO()
             self.__set_state(_STATE_CHUNK_RESIDUE)
             return
 
         self.set_terminator(self._chunksize+2)
-        self._responsefp = cStringIO.StringIO()
+        self._responsefp = io.StringIO()
         self.__set_state(_STATE_CHUNK_BODY)
 
     def _chunk_body_data(self):
@@ -662,7 +662,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
             #if we have some text left over, we hope it's another chunk,
             # but if it doesn't contain a newline, it is insufficient
             if self._chunkbuffer.find("\r\n") < 0:
-                self._responsefp = cStringIO.StringIO()
+                self._responsefp = io.StringIO()
                 self.set_terminator("\r\n")
                 self.__set_state(_STATE_CHUNK_START)
                 return
@@ -670,7 +670,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
             self._chunksize = self._get_chunk_size()
             if self._chunksize == 0:
                 if self.debuglevel > 0:
-                    print "0 size Chunk: ending chunk processing"
+                    print("0 size Chunk: ending chunk processing")
                 self.response.body = self._chunkfp.getvalue()
                 self._chunkfp = None
 
@@ -692,7 +692,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
                 # send entity headers. It should at least send
                 # a final '\r\n'
                 self.set_terminator("\r\n\r\n")
-                self._responsefp = cStringIO.StringIO()
+                self._responsefp = io.StringIO()
                 self.__set_state(_STATE_CHUNK_RESIDUE)
                 return
 
@@ -703,7 +703,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
             bufsize = len(self._chunkbuffer)
             if bufsize < chunk_plus_crlf_size:
                 self.set_terminator(chunk_plus_crlf_size - bufsize)
-                self._responsefp = cStringIO.StringIO()
+                self._responsefp = io.StringIO()
                 self.__set_state(_STATE_CHUNK_BODY)
                 return
 
@@ -713,7 +713,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
 
         # we don't have any text left over, but we haven't hit a
         # zero chunk. See if the server will give us another line
-        self._responsefp = cStringIO.StringIO()
+        self._responsefp = io.StringIO()
         self.set_terminator("\r\n")
         self.__set_state(_STATE_CHUNK_START)
         
@@ -724,7 +724,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         """
         residue = string.strip(self._responsefp.getvalue())
         if self.debuglevel > 0 and residue:
-            print "chunk residue '%s'" % (residue)
+            print("chunk residue '%s'" % (residue))
             
         self._responsefp = None
 
@@ -749,7 +749,7 @@ class AsyncHTTPConnection(asynchat.async_chat):
         Change state be setting _found_terminator
         """
         if self.debuglevel > 0:
-            print "%s to %s" % (self.__state, next_state)
+            print("%s to %s" % (self.__state, next_state))
         self.__state = next_state
         self.found_terminator = self._TERMINATOR_MAP[self.__state]
 
@@ -806,7 +806,7 @@ class __test_AsyncHTTPConnection(AsyncHTTPConnection):
         self.close()
         
     def handle_connect(self):
-        print "__test_AsyncHTTPConnection.handle_connect"
+        print("__test_AsyncHTTPConnection.handle_connect")
         AsyncHTTPConnection.handle_connect(self)
         self.putrequest("GET", self._url)
         self.endheaders()
@@ -817,7 +817,7 @@ if __name__ == "__main__":
     Code for commandline testing
     """
     if len(sys.argv) < 4:
-        print "Usage:  asynchttp.py <host> <port> <request>"
+        print("Usage:  asynchttp.py <host> <port> <request>")
         sys.exit(-1)
 
     tester = __test_AsyncHTTPConnection(
@@ -831,19 +831,19 @@ if __name__ == "__main__":
     asyncore.loop()
 
     if not hasattr(tester, "response"):
-        print "No rsponse"
+        print("No rsponse")
         sys.exit(-1)
 
-    print "results %s %d %s" % (
+    print("results %s %d %s" % (
         tester.response.version,
         tester.response.status,
         tester.response.reason
-        )
+        ))
         
-    print "headers:"
+    print("headers:")
     for hdr in tester.response.msg.headers:
-        print "%s" %  (string.strip(hdr))
+        print("%s" %  (string.strip(hdr)))
     
     if tester.response.status == 200:
-        print "body:"
-        print tester.response.body
+        print("body:")
+        print(tester.response.body)

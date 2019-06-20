@@ -44,7 +44,7 @@ class Cache:
 			try:
 				if self.debug:
 					print("loading",os.path.join(self.cache,f))
-				old = load(open(os.path.join(self.cache,f)))
+				old = load(open(os.path.join(self.cache,f), 'rb'))
 				old.seek(0)
 				if len(old.readall())==0:
 					raise EOFError()

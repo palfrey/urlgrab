@@ -35,6 +35,7 @@ class URLTimeoutCurl(URLGetter):
 		self.header = ""
 		origurl = url
 		c = pycurl.Curl()
+		c.setopt(pycurl.HTTP_VERSION, pycurl.CURL_HTTP_VERSION_1_1)
 		if self.debug:
 			c.setopt(pycurl.VERBOSE, 1)
 		if hasattr(self, "user"):

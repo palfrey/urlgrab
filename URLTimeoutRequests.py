@@ -14,4 +14,4 @@ class URLTimeoutRequests(URLGetter):
         if r.status_code != 200:
             raise URLTimeoutError(str(r.status_code), r.reason,url, r.status_code)
 
-        return URLObject(url, None, r.content, r.headers, data)
+        return URLObject(url, None, r.text, r.headers, data)

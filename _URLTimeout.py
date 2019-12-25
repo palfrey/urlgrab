@@ -21,7 +21,6 @@ class URLTimeout:
 					print("using %s" % m)
 				break
 			except ImportError as e:
-				raise
 				if debug:
 					print("%s importing error:" % m)
 					print(e)

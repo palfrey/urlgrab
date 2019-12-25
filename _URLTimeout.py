@@ -12,7 +12,7 @@ import importlib
 class URLTimeout:
 	def __init__(self,debug=False):
 		self.debug = debug
-		modules = ("URLTimeoutCurl", "URLTimeoutAsync", "URLTimeoutAppEngine")
+		modules = ("URLTimeoutCurl", "URLTimeoutRequests", "URLTimeoutAppEngine")
 		for m in modules:
 			try:
 				mod = importlib.import_module(".%s" % m, package="urlgrab")

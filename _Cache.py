@@ -10,6 +10,7 @@ from ._URLTimeoutCommon import URLTimeoutError, URLObject
 from stat import ST_MTIME
 import copy
 from zlib import compress, decompress
+import six
 
 try:
 	from google.appengine.api import memcache
@@ -188,7 +189,7 @@ class Cache:
 			return False
 		data = obj.read()
 		try:
-			open(fname, mode="wb").write(data)
+			open(fname, mode="wb").write(six.ensure_binary(data))
 			return True
 		except UnicodeDecodeError:
 			print("decode fail")

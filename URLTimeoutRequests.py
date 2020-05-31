@@ -9,6 +9,6 @@ class URLTimeoutRequests(URLGetter):
             raise URLOldDataError
 
         if r.status_code != 200:
-            raise URLTimeoutError(str(status[0])+" "+status[1],url, status[0])
+            raise URLTimeoutError(str(r.status_code)+" "+r.reason,url, r.status_code)
 
         return URLObject(url, None, r.content, r.headers, data)

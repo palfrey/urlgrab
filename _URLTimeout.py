@@ -15,7 +15,13 @@ class URLTimeout:
 		modules = ("URLTimeoutRequests", "URLTimeoutCurl", "URLTimeoutAppEngine")
 		for m in modules:
 			try:
-				mod = importlib.import_module(".%s" % m, package="urlgrab")
+				if __name__.find("._URLTimeout") != -1:
+					path = __name__.replace("._URLTimeout", "")
+				else:
+					path = "urlgrab"
+				if debug:
+					print("path", path)
+				mod = importlib.import_module(".%s" % m, package=path)
 				self.__ut = getattr(mod,m)(debug=debug)
 				if debug:
 					print("using %s" % m)

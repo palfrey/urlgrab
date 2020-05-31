@@ -8,7 +8,14 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 
 from sys import version_info
-from urllib.parse import urljoin
+
+try:
+	from urllib.parse import urljoin, urlsplit
+	from urllib.error import URLError
+except ImportError:
+	from urlparse import urljoin, urlsplit
+	from urllib2 import URLError
+
 from ._local_dict import apply_vars
 try:
 	from os import SEEK_SET, SEEK_CUR, SEEK_END
@@ -19,8 +26,6 @@ except ImportError: # python <2.5
 import builtins
 from ._Enum import Enum
 from os.path import dirname,basename
-import urllib.parse
-from urllib.error import URLError
 try:
 	from xdg import Mime
 except ImportError:
@@ -310,7 +315,7 @@ class Kind(Enum):
 def handleurl(url):
 	if url == "":
 		raise URLError("Need a URL!")
-	bits = urllib.parse.urlsplit(url)
+	bits = urlsplit(url)
 	rest ="".join(bits[1:])
 	while len(rest)>0 and rest[0]=="/":
 		rest = rest[1:]

@@ -7,6 +7,7 @@
 
 from optparse import OptionParser,OptionValueError,Option
 from copy import copy
+import six
 
 class EnumMetaClass(type):
 	"""Metaclass for enumeration.
@@ -132,7 +133,8 @@ class EnumInstance:
 
 # Create the base class for enumerations.
 # It is an empty enumeration.
-class Enum(metaclass=EnumMetaClass):
+@six.add_metaclass(EnumMetaClass)
+class Enum():
 	pass
 
 def check_enum(option, opt, value):

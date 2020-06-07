@@ -3,7 +3,7 @@ from ._URLTimeoutCommon import *
 
 class URLTimeoutRequests(URLGetter):
     def get(self, url, headers={}, ref=None, data=None, ignore_move=False, proxy=None):
-        r = requests.get(url, headers)
+        r = requests.get(url, headers=headers)
 
         if r.status_code == 304:
             raise URLOldDataError

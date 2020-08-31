@@ -1,5 +1,5 @@
 import requests
-from ._URLTimeoutCommon import *
+from . import *
 
 class URLTimeoutRequests(URLGetter):
     def get(self, url, headers={}, ref=None, data=None, ignore_move=False, proxy=None):

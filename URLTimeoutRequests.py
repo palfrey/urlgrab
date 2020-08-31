@@ -4,6 +4,8 @@ from . import *
 class URLTimeoutRequests(URLGetter):
     def get(self, url, headers={}, ref=None, data=None, ignore_move=False, proxy=None):
         try:
+            if ref is not None:
+                headers.update({'referer': ref})
             r = requests.get(url, headers=headers, verify=False)
         except Exception as e:
             raise URLTimeoutError(str(e), url)

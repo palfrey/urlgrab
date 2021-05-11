@@ -14,7 +14,7 @@ class URLTimeoutRequests(URLGetter):
             raise URLOldDataError
 
         if r.status_code != 200:
-            raise URLTimeoutError(str(r.status_code), r.reason,url, r.status_code)
+            raise URLTimeoutError(str(r.status_code) + " " + r.reason, url, r.status_code)
         
         if r.encoding == "UTF-8":
             return URLObject(url, ref, r.text, r.headers, data)

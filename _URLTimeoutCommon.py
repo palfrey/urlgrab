@@ -54,7 +54,7 @@ def hexdigest_md5(data):
 		return md5.new(data).hexdigest()
 
 class URLTimeoutError(Exception):
-	def __init__(self,string, url, code = -1):
+	def __init__(self, string, url, code = -1):
 		Exception.__init__(self,"%s - %s"%(string,url))
 		self.url = url
 		self.code = code

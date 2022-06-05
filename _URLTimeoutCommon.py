@@ -299,7 +299,7 @@ class URLFile:
 			print("made asyncfile")
 		self._url = url
 		try:
-			self.body = file(self._url).read()
+			self.body = open(self._url).read()
 		except IOError as e:
 			raise URLTimeoutError(str(e),url)
 		self.msg = URLHeaders({})

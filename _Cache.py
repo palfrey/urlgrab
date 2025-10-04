@@ -5,6 +5,7 @@
 # Released under the GPL Version 2 (http://www.gnu.org/copyleft/gpl.html)
 import os,time,sys
 from pickle import dump,load,UnpicklingError
+from typing import Dict
 from ._URLTimeout import URLTimeout
 from ._URLTimeoutCommon import URLTimeoutError, URLObject
 from stat import ST_MTIME
@@ -12,40 +13,29 @@ import copy
 from zlib import compress, decompress
 import six
 
-try:
-	from google.appengine.api import memcache
-except ImportError:
-	memcache = None
-
 class URLOldDataError(Exception):
 	pass
 
 class Cache:
 	def __init__(self,cache="cache", debug=False):
 		self.cache = cache
-		self.store = {}
+		self.store: Dict[str, URLObject] = {}
 		self.debug = debug
 		self.grabber = URLTimeout(debug)
 		self.default_timeout = self.grabber.getTimeout()
-		if memcache == None and not os.path.exists(cache):
+		if not os.path.exists(cache):
 			os.mkdir(cache)
 
-	def __load__(self,url,ref, data = None):
+	def __load__(self,url: str,ref: str|None, data = None):
 		hash = URLObject.md5(url,ref,data)
 		if hash in self.store:
-			return
-		if memcache:
-			get = memcache.get(hash)
-			if get != None:
-				self.store[hash] = get
-				self.store[hash].data = decompress(self.store[hash].data)
 			return
 		f = hash+".cache"
 		if f in os.listdir(self.cache):
 			try:
 				if self.debug:
 					print("loading",os.path.join(self.cache,f))
-				old = load(open(os.path.join(self.cache,f), 'rb'))
+				old: URLObject = load(open(os.path.join(self.cache,f), 'rb'))
 				old.seek(0)
 				if len(old.readall())==0:
 					raise EOFError()
@@ -69,13 +59,9 @@ class Cache:
 		if hash in self.store:
 			if self.debug:
 				print("dumping",url,ref,hash)
-			if memcache!=None:
-				self.store[hash].data = compress(self.store[hash].data)
-				memcache.set(hash, self.store[hash])
-			else:
-				f = open(os.path.join(self.cache,hash+".cache"),'wb')
-				dump(self.store[hash],f)
-				f.close()
+			f = open(os.path.join(self.cache,hash+".cache"),'wb')
+			dump(self.store[hash],f)
+			f.close()
 		else:
 			raise Exception("We never got that URL! ("+url+")")
 
@@ -92,7 +78,7 @@ class Cache:
 				return True
 		return False
 
-	def get(self, url, ref=None, max_age=3600, data = None, headers={}, timeout=None, ignore_move = False): # 3600 seconds = 60 minutes
+	def get(self, url, ref=None, max_age=3600, data = None, headers={}, timeout=None, ignore_move = False) -> URLObject: # 3600 seconds = 60 minutes
 		if timeout == None:
 			timeout = self.default_timeout
 		if self.debug:
@@ -171,8 +157,6 @@ class Cache:
 		if hash in self.store:
 			if self.debug:
 				print("deleting",obj.url,obj.ref,hash)
-			if memcache!=None:
-				memcache.delete(hash)
 			else:
 				path = os.path.join(self.cache,hash+".cache")
 				if os.path.exists(path):

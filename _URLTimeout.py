@@ -9,6 +9,8 @@
 
 import importlib
 
+from urlgrab._URLTimeoutCommon import URLObject
+
 class URLTimeout:
 	def __init__(self,debug=False):
 		self.debug = debug
@@ -33,7 +35,7 @@ class URLTimeout:
 		else:
 			raise Exception("Install Python >=2.3 (for asyncchat) or PyCurl, 'cause neither work right now!")
 		
-	def get(self,url,ref=None,headers={},data=None,ignore_move=False, proxy=None):
+	def get(self,url,ref=None,headers={},data=None,ignore_move=False, proxy=None) -> URLObject:
 		return self.__ut.get(url,ref=ref,headers=headers,data=data,ignore_move=ignore_move, proxy=proxy)
 
 	def auth(self,user,password):

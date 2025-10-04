@@ -34,24 +34,14 @@ try:
 	import magic
 except ImportError: # no magic
 	magic = None
-try:
-	from os import popen
-except ImportError: # occurs on Google AppEngine
-	popen = None
+from os import popen
 
-try:
-	import hashlib
-except ImportError: # python < 2.5
-	import md5
-	hashlib = None
+import hashlib
 
 import warnings
 
 def hexdigest_md5(data):
-	if hashlib:
-		return hashlib.md5(data.encode('utf-8')).hexdigest()
-	else:
-		return md5.new(data).hexdigest()
+	return hashlib.md5(data.encode('utf-8')).hexdigest()
 
 class URLTimeoutError(Exception):
 	def __init__(self, string, url, code = -1):
@@ -197,7 +187,7 @@ class URLObject:
 		return URLObject.md5(self.url, self.ref, self.postData)
 
 	@staticmethod
-	def md5(url,ref,data):
+	def md5(url:str,ref:str|None,data: object|None) -> str:
 		return hexdigest_md5(url+str(ref)+str(data))
 
 class URLGetter:
